@@ -200,7 +200,7 @@
         trigger: cfg.transition,
         start: 'top top',
         end: 'bottom top',
-        scrub: 0.55,
+        scrub: 0.35,
         onUpdate: function (self) {
           var opacity = landingHeaderOpacity(self.progress);
           gsap.set(footerEl, { opacity: opacity, visibility: 'visible' });
@@ -211,9 +211,9 @@
       return;
     }
 
-    var revealStart = cfg.landingFooter ? 'top top' : 'top bottom+=500';
-    var revealEnd = cfg.landingFooter ? 'bottom top' : 'bottom bottom';
-    var charStart = cfg.landingFooter ? 'top 65%' : 'center bottom+=500';
+    var revealStart = 'top bottom+=500';
+    var revealEnd = 'bottom bottom';
+    var charStart = 'center bottom+=500';
 
     loadAndRender('assets/images/footer/left.png', cfg.asciiLeftId, 80);
     loadAndRender('assets/images/footer/right.png', cfg.asciiRightId, 80);
@@ -250,6 +250,37 @@
     var sx = 0;
     var sy = 0;
     var blockVisible = false;
+    var footerShown = false;
+    var footerLocked = false;
+    var orderedNameChars = [];
+    var readyClass = cfg.readyClass || 'site-header--ready';
+
+    function isNearPageBottom() {
+      var scrollEl = document.scrollingElement || document.documentElement;
+      return window.innerHeight + window.scrollY >= scrollEl.scrollHeight - 32;
+    }
+
+    function revealFooterFully() {
+      showFooterBlock(true);
+      if (orderedNameChars.length) gsap.set(orderedNameChars, { yPercent: 0 });
+      if (asciiLeftWrap) gsap.set(asciiLeftWrap, { xPercent: 0 });
+      if (asciiRightWrap) gsap.set(asciiRightWrap, { xPercent: 0 });
+    }
+
+    function syncFooterState() {
+      if (footerLocked || isNearPageBottom()) {
+        footerLocked = true;
+        revealFooterFully();
+        return;
+      }
+
+      var zone = ScrollTrigger.getById('footer-reveal-zone');
+      if (!zone) return;
+
+      if (zone.progress > 0 || zone.isActive) {
+        showFooterBlock(true);
+      }
+    }
 
     if (cfg.enableParallax !== false) {
       document.addEventListener('mousemove', function (e) {
@@ -270,57 +301,23 @@
       requestAnimationFrame(parallaxLoop);
     }
 
-    function showFooterBlock() {
+    function showFooterBlock(force) {
+      if (footerShown && !force) return;
+      footerShown = true;
       footerEl.style.visibility = 'visible';
-      var readyClass = cfg.readyClass || 'site-header--ready';
       footerEl.classList.add(readyClass);
       blockVisible = true;
       parallaxLoop();
     }
 
     function hideFooterBlock(force) {
+      if (footerLocked && !force) return;
+      if (!footerShown) return;
       blockVisible = false;
       if (cfg.hideOnLeave === false && !force) return;
+      footerShown = false;
       footerEl.style.visibility = 'hidden';
-      var readyClass = cfg.readyClass || 'site-header--ready';
       footerEl.classList.remove(readyClass);
-    }
-
-    if (cfg.landingFooter) {
-      showFooterBlock();
-    }
-
-    footerEl.querySelectorAll('[data-chr-footer]').forEach(function (el) {
-      var text = el.getAttribute('data-chr-footer');
-      el.removeAttribute('data-chr-footer');
-      Array.from(text).forEach(function (ch, i) {
-        if (ch === ' ') {
-          el.insertAdjacentHTML('beforeend', '<span style="width:0.35em;display:inline-block">&nbsp;</span>');
-          return;
-        }
-        var wrap = document.createElement('span');
-        wrap.className = 'ch-wrap';
-        wrap.style.setProperty('--i', i);
-        var chHTML = window.getCharHTML ? window.getCharHTML(ch) : ch;
-        wrap.innerHTML = '<span class="ch-top">' + chHTML + '</span><span class="ch-bot">' + chHTML + '</span>';
-        el.appendChild(wrap);
-      });
-    });
-
-    var footerTopChars = footerEl.querySelectorAll('.footer-top .chr-hover .ch-top');
-    if (footerTopChars.length) {
-      gsap.set(footerTopChars, { clipPath: 'inset(100% 0 0 0)' });
-      gsap.to(footerTopChars, {
-        clipPath: 'inset(0 0 0 0)',
-        ease: 'power3.out',
-        stagger: { each: 0.015, from: 'start' },
-        scrollTrigger: {
-          trigger: cfg.transition,
-          start: charStart,
-          end: revealEnd,
-          scrub: true,
-        },
-      });
     }
 
     (function initNameReveal() {
@@ -364,6 +361,7 @@
         if (firstRev[i]) ordered.push(firstRev[i]);
       }
 
+      orderedNameChars = ordered;
       gsap.set(ordered, { yPercent: 110 });
       gsap.to(ordered, {
         yPercent: 0,
@@ -379,19 +377,46 @@
     })();
 
     ScrollTrigger.create({
+      id: 'footer-reveal-zone',
       trigger: cfg.transition,
       start: revealStart,
       end: revealEnd,
-      onEnter: showFooterBlock,
+      onEnter: function () { showFooterBlock(true); },
       onLeave: hideFooterBlock,
-      onEnterBack: showFooterBlock,
+      onEnterBack: function () { showFooterBlock(true); },
       onLeaveBack: function () {
-        if (cfg.landingFooter) {
-          showFooterBlock();
-          return;
-        }
+        if (footerLocked || isNearPageBottom()) return;
         hideFooterBlock(true);
       },
     });
+
+    ScrollTrigger.create({
+      id: 'footer-bottom-lock',
+      trigger: document.body,
+      start: 'bottom bottom',
+      end: 'max',
+      onEnter: function () {
+        footerLocked = true;
+        revealFooterFully();
+      },
+      onLeaveBack: function () {
+        if (isNearPageBottom()) return;
+        footerLocked = false;
+      },
+    });
+
+    ScrollTrigger.addEventListener('refresh', scheduleFooterSync);
+    requestAnimationFrame(function () {
+      ScrollTrigger.refresh();
+      syncFooterState();
+    });
+
+    function scheduleFooterSync() {
+      if (scheduleFooterSync._raf) return;
+      scheduleFooterSync._raf = requestAnimationFrame(function () {
+        scheduleFooterSync._raf = 0;
+        syncFooterState();
+      });
+    }
   };
 })();

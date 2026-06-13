@@ -86,7 +86,6 @@
     applySkills(c.skills ?? home.skills);
     applyFooter(c.footer ?? home.footer);
     applyPreview(c.projectsPreview ?? home.projectsPreview);
-    window.dispatchEvent(new CustomEvent('home-content-ready'));
   }
 
   boot();

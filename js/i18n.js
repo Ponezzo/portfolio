@@ -14,43 +14,17 @@
   };
 
   if (lang === 'ko') {
-    window.__t = function (key) { return null; };
+    window.__t = function () { return null; };
     return;
   }
 
   const T = {
     'meta.description': 'Taegeon Park portfolio. Product manager and creative developer building motion-rich web experiences.',
-
     'index.title': 'TGP Portfolio — Taegeon Park',
     'index.h1': 'Taegeon Park — Product Manager & Creative Developer based in Seoul.',
-    'index.hero.tagline': 'Basically, I plan and build with the user first.',
-    'index.about.text': '제목',
-    'index.about.sub': '본문',
-    'index.cg.phrase': "Each project is a chance to <span class=\"other-accent\">learn</span>, <span class=\"other-accent\">experiment</span> and push my limits.",
     'index.skills.subtitle': 'Skills',
-    'index.skills.text': 'Product-minded developer focused on motion, clarity, and shipped experiences.',
-    'index.skills.frontend': 'Frontend',
-    'index.skills.animation': 'Animation & 3D',
-    'index.skills.backend': 'Backend',
-    'index.skills.database': 'Databases',
-    'index.skills.devops': 'DevOps & Tools',
-    'index.skills.security': 'System & Security',
-    'index.skills.design': 'Design',
-    'index.proj.label': 'Preview',
-    'index.detail.back': '← Back',
-
     'works.title': 'Work — TGP Portfolio',
     'works.h1': 'Selected projects by Taegeon Park — product manager and creative developer.',
-
-    'common.aria.back': 'Back to home',
-    'common.aria.menu': 'Main navigation',
-    'common.aria.social': 'Social links',
-    'common.aria.footer': 'Footer navigation',
-
-    '404.title': '404 — TGP Portfolio',
-    '404.subtitle': 'This page got lost in the void.<br><span class="subtitle-dim">It doesn\'t exist, or no longer does.</span>',
-    '404.ticker': '— PAGE NOT FOUND — SIGNAL LOST — ERROR 0x404 — THIS PAGE DOESN\'T EXIST — COORDINATES: NULL — UNKNOWN DESTINATION — ',
-    '404.aria.back': 'Back to home',
   };
 
   document.querySelectorAll('[data-i18n]').forEach(function (el) {

@@ -1,7 +1,5 @@
     
-
-    var isEn = window.__I18N_LANG === 'en';
-
+    
     var PROJECTS = [
       {
         id: 'flip',

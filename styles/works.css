@@ -289,9 +289,20 @@
       .layout-left .face-name { top: 1rem; right: 1rem; font-size: clamp(1.2rem, 5vw, 2rem); }
       .layout-right .face-name { top: 1rem; left: 1rem; font-size: clamp(1.2rem, 5vw, 2rem); }
       .face-desc { font-size: clamp(0.85rem, 2.8vw, 1.1rem); }
-      .page-title { top: 1.5rem; left: 1.5rem; font-size: clamp(1.8rem, 7vw, 3rem); }
-      .back-btn { top: 1.5rem; right: 1.5rem; }
-      .scroll-hint { bottom: 1.5rem; left: 1.5rem; }
+      .page-title { top: calc(1.5rem + env(safe-area-inset-top, 0px)); left: calc(1.5rem + env(safe-area-inset-left, 0px)); font-size: clamp(1.8rem, 7vw, 3rem); }
+      .back-btn { top: calc(1.5rem + env(safe-area-inset-top, 0px)); right: calc(1.5rem + env(safe-area-inset-right, 0px)); }
+      .scroll-hint { bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px)); left: calc(1.5rem + env(safe-area-inset-left, 0px)); }
+    }
+
+    @media (max-width: 480px) {
+      .page-title { font-size: clamp(1.5rem, 8vw, 2.25rem); }
+      .face-cover { height: 55%; }
+      .face-info { height: 45%; padding: 1rem; }
+      .counter-num { font-size: clamp(2.5rem, 12vw, 4rem); }
+    }
+
+    @media (max-height: 520px) and (max-width: 900px) {
+      .cube-viewport { height: min(72vh, 420px); }
     }
 
 

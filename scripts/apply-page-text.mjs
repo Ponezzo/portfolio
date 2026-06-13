@@ -93,28 +93,6 @@ function applySections(sections, home) {
   const content = home.content ?? (home.content = {});
   const existingProjects = home.projects ?? [];
 
-  if (sections.Preloader) {
-    const [logo, firstName] = takeOneTabLines(sections.Preloader);
-    content.preloader = {
-      ...(content.preloader ?? {}),
-      ...(logo != null ? { logo } : {}),
-      ...(firstName != null ? { firstName } : {}),
-    };
-  } else if (content.preloader) {
-    delete content.preloader;
-  }
-
-  if (sections.Hero) {
-    const [tagline] = takeOneTabLines(sections.Hero);
-    if (tagline != null) {
-      content.hero = {
-        ...(content.hero ?? {}),
-        taglineHtml: tagline,
-        taglinePlain: tagline.replace(/<[^>]+>/g, ''),
-      };
-    }
-  }
-
   if (sections.About) {
     const rawLines = takeOneTabLines(sections.About);
     const { title, facts } = splitAboutLines(rawLines);

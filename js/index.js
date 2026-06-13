@@ -16,12 +16,9 @@ function isMobileViewport() {
   return (document.documentElement.clientWidth || window.innerWidth) <= 768;
 }
 
-let lastMouseX = window.innerWidth / 2;
-let lastMouseY = window.innerHeight / 2;
-window.addEventListener('mousemove', (e) => {
-  lastMouseX = e.clientX;
-  lastMouseY = e.clientY;
-}, { passive: true });
+function isCompactProjectsLayout() {
+  return (document.documentElement.clientWidth || window.innerWidth) <= 900;
+}
 
 let _isForcingScroll = false;
 function _forceScrollTop() {
@@ -34,16 +31,6 @@ function _forceScrollTop() {
 }
 
 function _preventTouchScroll(e) { e.preventDefault(); }
-
-function _lockMobileScroll() {
-  document.addEventListener('touchmove', _preventTouchScroll, { passive: false });
-  window.addEventListener('scroll', _forceScrollTop);
-}
-
-function _unlockMobileScroll() {
-  document.removeEventListener('touchmove', _preventTouchScroll);
-  window.removeEventListener('scroll', _forceScrollTop);
-}
 
 if (!mustSkip) {
   _forceScrollTop();
@@ -63,6 +50,10 @@ if (!mustSkip) {
 
 
 gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({
+  limitCallbacks: true,
+  ignoreMobileResize: true,
+});
 
 const introBg = document.getElementById('intro-bg');
 const tPanelRed = document.getElementById('t-panel-red');
@@ -117,40 +108,14 @@ master
   }, '-=0.4')
   .add(showSiteHeaderLanding);
 
-document.querySelectorAll('.chr-hover[data-chr]').forEach(el => {
-  const text = el.dataset.chr;
-  [...text].forEach((ch, i) => {
-    const wrap = document.createElement('span');
-    wrap.className = 'ch-wrap';
-    wrap.style.setProperty('--i', i);
-    const top = document.createElement('span');
-    top.className = 'ch-top';
-    top.innerHTML = window.getCharHTML(ch);
-    const bot = document.createElement('span');
-    bot.className = 'ch-bot';
-    bot.innerHTML = window.getCharHTML(ch);
-    wrap.appendChild(top);
-    wrap.appendChild(bot);
-    el.appendChild(wrap);
-  });
+const lenis = new Lenis({
+  lerp: isMobile ? 0.085 : 0.07,
+  smoothWheel: true,
+  wheelMultiplier: 0.95,
+  touchMultiplier: 1.15,
 });
-
-const chrHoverTl = gsap.timeline({ paused: true });
-document.querySelectorAll('.chr-hover').forEach((el, elIdx) => {
-  el.querySelectorAll('.ch-top').forEach((ch, i) => {
-    const pos = elIdx * 0.08 + i * 0.03;
-    chrHoverTl.fromTo(ch,
-      { clipPath: 'inset(100% 0 0 0)', immediateRender: false },
-      { clipPath: 'inset(0 0 0 0)', duration: 0.7, ease: 'power3.out' },
-      pos
-    );
-  });
-});
-
-const lenis = new Lenis({ lerp: 0.06 });
 lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add((time) => lenis.raf(time * 1000));
-gsap.ticker.lagSmoothing(0);
 
 lenis.stop();
 lenis.scrollTo(0, { immediate: true });
@@ -170,9 +135,6 @@ master.add(() => {
   lenis.scrollTo(0, { immediate: true });
 
   gsap.set([tPanelRed, tPanelDark], { willChange: 'auto' });
-  document.getElementById('hero-tagline')?.style.setProperty('will-change', 'auto');
-  document.getElementById('hero-line')?.style.setProperty('will-change', 'auto');
-  document.querySelectorAll('.ch-top').forEach(el => { el.style.willChange = 'auto'; });
 
   
   const tPanel = document.getElementById('transition-panel');
@@ -200,7 +162,7 @@ if (mustSkip) {
     _forceScrollTop();
     requestAnimationFrame(() => {
       _forceScrollTop();
-      ScrollTrigger.refresh();
+      scheduleScrollRefresh();
     });
   }
 }
@@ -232,67 +194,75 @@ function setupAboutSection() {
     });
   }
   const aboutSub = document.getElementById('about-sub');
-  const aboutVersion = document.querySelector('.about-version');
   wrapWords(aboutText);
-  if (aboutVersion) {
-    const aboutIcon = aboutVersion.querySelector('svg');
-    if (aboutIcon) aboutIcon.classList.add('word');
-    wrapWords(aboutVersion);
-  }
 
   const aboutWords = [...aboutText.querySelectorAll('.word')];
-  if (aboutVersion) aboutWords.push(...aboutVersion.querySelectorAll('.word'));
 
-  if (isMobile) {
+  if (isMobile || isSlowHardware) {
     aboutWords.forEach(w => { w.style.filter = 'none'; });
   }
 
-  aboutWords.forEach(word => {
-    gsap.to(word, {
-      opacity: 1,
-      ...(isMobile ? {} : { filter: 'blur(0px)' }),
-      ease: 'none',
-      scrollTrigger: {
-        trigger: word,
-        start: 'top 75%',
-        end: 'top 60%',
-        scrub: true,
+  if (aboutWords.length) {
+    gsap.fromTo(aboutWords,
+      isMobile || isSlowHardware ? { opacity: 0 } : { opacity: 0, filter: 'blur(8px)' },
+      {
+        opacity: 1,
+        ...(isMobile || isSlowHardware ? {} : { filter: 'blur(0px)' }),
+        ease: 'none',
+        stagger: { each: 0.055, ease: 'none' },
+        scrollTrigger: {
+          trigger: aboutText,
+          start: 'top 78%',
+          end: 'top 48%',
+          scrub: 0.35,
+        },
       },
-    });
-  });
+    );
+  }
 
-  gsap.set(aboutSub, isMobile ? { opacity: 0 } : { opacity: 0, filter: 'blur(12px)' });
+  const aboutSubFrom = isMobile || isSlowHardware
+    ? { opacity: 0 }
+    : { opacity: 0, filter: 'blur(12px)' };
+  gsap.set(aboutSub, aboutSubFrom);
   gsap.to(aboutSub, {
     opacity: 1,
-    ...(isMobile ? {} : { filter: 'blur(0px)' }),
+    ...(isMobile || isSlowHardware ? {} : { filter: 'blur(0px)' }),
     ease: 'none',
     scrollTrigger: {
       trigger: aboutSub,
       start: 'top 80%',
       end: 'top 60%',
-      scrub: true,
+      scrub: 0.35,
     },
   });
 
   
   const photo = photoWrap.querySelector('.about-photo');
+  const usePhotoBlur = !isMobile && !isSlowHardware;
   function initPhotoScroll() {
-    gsap.set(photo, { opacity: 0, x: 48, filter: 'blur(20px)' });
+    const photoHidden = usePhotoBlur
+      ? { opacity: 0, x: 48, filter: 'blur(20px)' }
+      : { opacity: 0, x: 48 };
+    const photoVisible = usePhotoBlur
+      ? { opacity: 1, x: 0, filter: 'blur(0px)' }
+      : { opacity: 1, x: 0 };
+    const photoExit = usePhotoBlur
+      ? { opacity: 0, x: 24, filter: 'blur(16px)' }
+      : { opacity: 0, x: 24 };
+
+    gsap.set(photo, photoHidden);
 
     gsap.timeline({
       scrollTrigger: {
         trigger: '#about-body',
         start: 'top 88%',
         end: 'bottom top',
-        scrub: 0.55,
+        scrub: 0.35,
       },
     })
-      .fromTo(photo,
-        { opacity: 0, x: 48, filter: 'blur(20px)' },
-        { opacity: 1, x: 0, filter: 'blur(0px)', ease: 'none', duration: 0.28 },
-      )
-      .to(photo, { opacity: 1, x: 0, filter: 'blur(0px)', ease: 'none', duration: 0.44 })
-      .to(photo, { opacity: 0, x: 24, filter: 'blur(16px)', ease: 'none', duration: 0.28 });
+      .fromTo(photo, photoHidden, { ...photoVisible, ease: 'none', duration: 0.28 })
+      .to(photo, { ...photoVisible, ease: 'none', duration: 0.44 })
+      .to(photo, { ...photoExit, ease: 'none', duration: 0.28 });
   }
   if (photo.decode) {
     photo.decode().then(initPhotoScroll).catch(initPhotoScroll);
@@ -320,12 +290,6 @@ function setupProjectsSection() {
   gsap.set(card, { opacity: 0 });
   gsap.set(preview, { opacity: 0 });
 
-  function clearActiveProject() {
-    if (currentIdx >= 0) items[currentIdx].classList.remove('active');
-    currentIdx = -1;
-    hidePreviewPanel();
-  }
-
   function isInSkillsSection() {
     const skills = document.getElementById('skills');
     if (!skills) return _skillsInView;
@@ -345,16 +309,11 @@ function setupProjectsSection() {
   }
 
   function showPreviewPanel() {
+    if (isCompactProjectsLayout()) return;
     if (!_projectsInView || isInSkillsSection() || !_lineReady) return;
     preview.classList.add('visible');
     gsap.to(preview, { opacity: 1, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
     gsap.to(card, { opacity: 1, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
-  }
-
-  function hidePreviewPanel() {
-    preview.classList.remove('visible');
-    gsap.to(preview, { opacity: 0, duration: 0.12, ease: 'power2.in', overwrite: 'auto' });
-    gsap.to(card, { opacity: 0, duration: 0.12, ease: 'power2.in', overwrite: 'auto' });
   }
 
   function forceHidePreview() {
@@ -447,7 +406,7 @@ function setupProjectsSection() {
     if (currentIdx >= 0) openProject(items[currentIdx].dataset.id, items[currentIdx]);
   });
 
-  function onProjectsScroll() {
+  function onProjectsScrollImpl() {
     if (isInSkillsSection()) {
       forceHidePreview();
       return;
@@ -467,11 +426,32 @@ function setupProjectsSection() {
       itemQuickX[i](Math.min(dist / halfH, 1) * 80);
       if (dist < closestDist) { closestDist = dist; closestIdx = i; }
     });
-    activateProject(closestIdx);
-    syncPreviewVisibility();
+    if (closestIdx !== currentIdx) {
+      activateProject(closestIdx);
+    }
+  }
+
+  let _projectsScrollQueued = false;
+  function onProjectsScroll() {
+    if (_projectsScrollQueued) return;
+    _projectsScrollQueued = true;
+    requestAnimationFrame(() => {
+      _projectsScrollQueued = false;
+      onProjectsScrollImpl();
+    });
   }
   lenis.on('scroll', onProjectsScroll);
-  onProjectsScroll();
+  onProjectsScrollImpl();
+
+  let _wasCompactLayout = isCompactProjectsLayout();
+  window.addEventListener('resize', () => {
+    const compact = isCompactProjectsLayout();
+    if (compact === _wasCompactLayout) return;
+    _wasCompactLayout = compact;
+    if (compact) forceHidePreview();
+    else if (_projectsInView) onProjectsScrollImpl();
+    scheduleScrollRefresh();
+  }, { passive: true });
 
   function activateProject(i) {
     if (!_projectsInView || isInSkillsSection()) return;
@@ -544,7 +524,7 @@ function setupProjectsSection() {
 
   
   gsap.ticker.add(() => {
-    if (_projectsInView) {
+    if (_projectsInView && _lineReady && preview.classList.contains('visible')) {
       _tiltRY += (_tiltTargetRY - _tiltRY) * 0.12;
       _tiltRX += (_tiltTargetRX - _tiltRX) * 0.12;
       card.style.transform = 'rotateY(' + _tiltRY.toFixed(2) + 'deg) rotateX(' + _tiltRX.toFixed(2) + 'deg)';
@@ -557,20 +537,19 @@ function setupProjectsSection() {
   });
 
   
-  items.forEach(item => {
-    ScrollTrigger.create({
-      trigger: item,
-      start: 'top 52%',
-      end: 'bottom 48%',
-      onEnter: () => lenis && lenis.options && (lenis.options.lerp = 0.04),
-      onLeave: () => lenis && lenis.options && (lenis.options.lerp = 0.06),
-      onEnterBack: () => lenis && lenis.options && (lenis.options.lerp = 0.04),
-      onLeaveBack: () => lenis && lenis.options && (lenis.options.lerp = 0.06),
-    });
+  ScrollTrigger.create({
+    trigger: projectsEl,
+    start: 'top 58%',
+    end: 'bottom 42%',
+    onEnter: () => { if (lenis?.options) lenis.options.lerp = 0.045; },
+    onLeave: () => { if (lenis?.options) lenis.options.lerp = isMobile ? 0.085 : 0.07; },
+    onEnterBack: () => { if (lenis?.options) lenis.options.lerp = 0.045; },
+    onLeaveBack: () => { if (lenis?.options) lenis.options.lerp = isMobile ? 0.085 : 0.07; },
   });
 
   
   const linePath = document.getElementById('fluid-line');
+  const lineDrawTrigger = document.getElementById('projects-list') || projectsEl;
   if (!linePath) return;
   const lineLen = linePath.getTotalLength();
 
@@ -580,213 +559,26 @@ function setupProjectsSection() {
     strokeDashoffset: 0,
     ease: 'none',
     scrollTrigger: {
-      trigger: '#projects',
+      trigger: lineDrawTrigger,
       start: 'top 70%',
       end: 'bottom top',
       scrub: 1,
-      onUpdate: (self) => updateLineReady(self.progress),
+      invalidateOnRefresh: true,
     },
   });
 
-  
-  ; (function () {
-    if (!document.getElementById('circle-gallery')) return;
-    if (isMobileViewport()) return; 
-
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-
-    
-    (function buildSlices() {
-      var SLICES = 10;
-      var imgW = Math.min(Math.max(120, vw * 0.14), 210);
-      var imgH = imgW * 2 / 3;
-      
-      var orbitR = (vw * 0.34 + 500) / 2; 
-      var bendRad = imgW / orbitR;
-      var cylR = orbitR;
-      var sliceW = imgW / SLICES;
-      var totalBendDeg = bendRad * 180 / Math.PI;
-      var stepDeg = totalBendDeg / SLICES;
-
-      document.querySelectorAll('.cg-img').forEach(function (img) {
-        var src = img.getAttribute('src');
-        var wrapper = document.createElement('div');
-        wrapper.className = 'cg-img';
-
-        for (var s = 0; s < SLICES; s++) {
-          var sl = document.createElement('div');
-          sl.className = 'cg-slice';
-          var displayW = sliceW + 1.5; 
-          sl.style.width = displayW.toFixed(1) + 'px';
-          sl.style.left = '50%';
-          sl.style.marginLeft = (-displayW / 2).toFixed(1) + 'px';
-          sl.style.backgroundImage = 'url(' + src + ')';
-          sl.style.backgroundSize = imgW.toFixed(1) + 'px ' + imgH.toFixed(1) + 'px';
-          sl.style.backgroundPosition = (-s * sliceW).toFixed(1) + 'px 0';
-          sl.style.transformOrigin = '50% 50% ' + (-cylR).toFixed(1) + 'px';
-          var angle = (s - (SLICES - 1) / 2) * stepDeg;
-          sl.style.transform = 'rotateY(' + angle.toFixed(2) + 'deg)';
-          wrapper.appendChild(sl);
-        }
-
-        img.parentNode.replaceChild(wrapper, img);
-      });
-    })();
-
-    const cgImgs = gsap.utils.toArray('.cg-img');
-    const cgPhrase = document.getElementById('cg-phrase');
-    const count = cgImgs.length;
-
-    
-    (function wrapPhraseWords(el) {
-      var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-      var textNodes = [];
-      while (walker.nextNode()) textNodes.push(walker.currentNode);
-      textNodes.forEach(function (node) {
-        var words = node.textContent.split(/(\s+)/);
-        var frag = document.createDocumentFragment();
-        words.forEach(function (w) {
-          if (/^\s+$/.test(w)) {
-            frag.appendChild(document.createTextNode(w));
-          } else if (w) {
-            var span = document.createElement('span');
-            span.className = 'word';
-            span.textContent = w;
-            frag.appendChild(span);
-          }
-        });
-        node.parentNode.replaceChild(frag, node);
-      });
-    })(cgPhrase);
-    var cgPhraseWords = gsap.utils.toArray('#cg-phrase .word');
-
-    
-    const rx = vw * 0.34;
-    const rz = 500;
-    const tiltY = vw <= 768 ? 80 : 180;
-
-    
-    var entryAngle = Math.PI / 2;
-    var offX = vw * 0.85;
-
-    function getPos(t) {
-      if (t <= 0.12) {
-        
-        var p = t / 0.12;
-        return {
-          x: -offX * (1 - p),    
-          y: tiltY,
-          z: rz * p,             
-          rotY: 0                
-        };
-      }
-      if (t <= 0.88) {
-        
-        var p = (t - 0.12) / 0.76;
-        var angle = entryAngle - p * Math.PI * 2;
-        var x = Math.cos(angle) * rx;
-        var z = Math.sin(angle) * rz;
-
-        
-        var ry = p * Math.PI * 2;
-
-        return {
-          x: x,
-          y: (z / rz) * tiltY,
-          z: z,
-          rotY: ry
-        };
-      }
-      
-      var p = (t - 0.88) / 0.12;
-      return {
-        x: offX * p,             
-        y: tiltY,
-        z: rz * (1 - p),         
-        rotY: Math.PI * 2        
-      };
-    }
-
-    var stagger = 0.09;
-    var totalRange = 1 + stagger * (count - 1);
-
-    cgImgs.forEach(function (img) { img.style.opacity = '0'; });
-
-    ScrollTrigger.create({
-      trigger: '#circle-gallery',
-      start: 'top top',
-      end: 'bottom bottom',
-      pin: '#circle-gallery-pin',
-      onUpdate: function (self) {
-        var progress = self.progress;
-
-        cgImgs.forEach(function (img, i) {
-          var imgT = progress * totalRange - i * stagger;
-
-          if (imgT <= 0 || imgT >= 1) {
-            img.style.opacity = '0';
-            return;
-          }
-
-          var alpha = 1;
-          if (imgT < 0.06) alpha = imgT / 0.06;
-          else if (imgT > 0.94) alpha = (1 - imgT) / 0.06;
-
-          var pos = getPos(imgT);
-          var rotDeg = (pos.rotY * 180 / Math.PI).toFixed(1);
-
-          img.style.transform =
-            'translate3d(' + pos.x.toFixed(1) + 'px,' + pos.y.toFixed(1) + 'px,' + pos.z.toFixed(1) + 'px)' +
-            ' rotateY(' + rotDeg + 'deg)';
-          img.style.opacity = alpha;
-          img.style.zIndex = Math.round(pos.z + 600);
-        });
-
-        
-        var phraseStart = 0.25;
-        var phraseEnd = 0.75;
-        var travelY = 200; 
-
-        if (progress < phraseStart || progress > phraseEnd) {
-          cgPhrase.style.opacity = '0';
-        } else {
-          var globalP = (progress - phraseStart) / (phraseEnd - phraseStart);
-          
-          var yOffset = travelY * (0.5 - globalP); 
-          cgPhrase.style.transform = 'translateY(' + yOffset.toFixed(1) + 'px)';
-
-          
-          var revealEnd = 0.4;
-          cgPhraseWords.forEach(function (w, wi) {
-            if (globalP < revealEnd) {
-              var revealP = globalP / revealEnd;
-              var wordT = revealP * (cgPhraseWords.length + 4) - wi;
-              var wP = Math.max(0, Math.min(1, wordT / 3));
-              w.style.opacity = wP;
-              w.style.filter = 'blur(' + (8 * (1 - wP)).toFixed(1) + 'px)';
-            } else {
-              w.style.opacity = '1';
-              w.style.filter = 'blur(0px)';
-            }
-          });
-
-          
-          var alpha = 1;
-          if (globalP < 0.1) alpha = globalP / 0.1;
-          else if (globalP > 0.75) alpha = (1 - globalP) / 0.25;
-          cgPhrase.style.opacity = alpha;
-        }
-      }
-    });
-  })();
+  ScrollTrigger.create({
+    trigger: '#projects',
+    start: 'top 70%',
+    end: 'bottom top',
+    onUpdate: (self) => updateLineReady(self.progress),
+  });
 
   
   ; (function () {
     var timeline = document.getElementById('scroll-timeline');
     var bar = document.getElementById('st-bar');
     var label = document.getElementById('st-label');
-    var pctEl = document.getElementById('scroll-pct');
 
     var sections = [
       { id: 'about', name: 'About' },
@@ -839,20 +631,12 @@ function setupProjectsSection() {
       onUpdate: function (self) {
         var progress = self.progress;
 
-        
-        var docH = document.documentElement.scrollHeight - window.innerHeight;
-        var pageP = docH > 0 ? Math.round((window.scrollY / docH) * 100) : 0;
-        if (pctEl) pctEl.textContent = '(' + pageP + ')';
-
         if (progress <= 0 || progress >= 0.90) {
           timeline.classList.remove('visible');
-          if (pctEl) pctEl.classList.remove('visible');
           timeline.style.opacity = '';
-          if (pctEl) pctEl.style.opacity = '';
           return;
         }
         timeline.classList.add('visible');
-        if (pctEl) pctEl.classList.add('visible');
 
         var activeIdx = 0;
         var cumul = 0;
@@ -905,7 +689,7 @@ function setupProjectsSection() {
               height: 0,
               duration: 0.45,
               ease: 'power3.inOut',
-              onComplete: function () { ScrollTrigger.refresh(); },
+              onComplete: function () { scheduleScrollRefresh(); },
             });
             return;
           }
@@ -922,7 +706,7 @@ function setupProjectsSection() {
             height: body.scrollHeight,
             duration: 0.45,
             ease: 'power3.inOut',
-            onComplete: function () { ScrollTrigger.refresh(); },
+            onComplete: function () { scheduleScrollRefresh(); },
           });
         });
       });
@@ -942,9 +726,6 @@ function setupProjectsSection() {
       hideOnLeave: false,
     });
   }
-
-  
-  const isEn = window.__I18N_LANG === 'en';
 
   const PROJECTS = {
     'flip': {
@@ -1031,9 +812,7 @@ function setupProjectsSection() {
     lenis.stop();
 
     const stTimeline = document.getElementById('scroll-timeline');
-    const pctEl = document.getElementById('scroll-pct');
     if (stTimeline) stTimeline.style.setProperty('display', 'none', 'important');
-    if (pctEl) pctEl.style.setProperty('display', 'none', 'important');
 
     const rect = clickedItem.getBoundingClientRect();
     const cs = getComputedStyle(clickedItem);
@@ -1122,9 +901,7 @@ function setupProjectsSection() {
     history.pushState(null, '', window.location.pathname);
 
     const stTimeline = document.getElementById('scroll-timeline');
-    const pctEl = document.getElementById('scroll-pct');
     if (stTimeline) stTimeline.style.removeProperty('display');
-    if (pctEl) pctEl.style.removeProperty('display');
 
     var tl = gsap.timeline();
 
@@ -1184,7 +961,7 @@ function setupProjectsSection() {
       if (projectsSection) {
         lenis.scrollTo(projectsSection, { duration: 1.1, offset: -window.innerHeight * 0.2 });
       }
-      ScrollTrigger.refresh();
+      scheduleScrollRefresh();
     });
   }
 
@@ -1248,27 +1025,20 @@ function setupProjectsSection() {
   }
   
   setTimeout(preloadProjectImages, 4000);
+  scheduleScrollRefresh();
 }
 
-ScrollTrigger.refresh();
+function scheduleScrollRefresh() {
+  if (scheduleScrollRefresh._raf) cancelAnimationFrame(scheduleScrollRefresh._raf);
+  scheduleScrollRefresh._raf = requestAnimationFrame(() => {
+    scheduleScrollRefresh._raf = 0;
+    ScrollTrigger.refresh();
+  });
+}
 
 function resetCrossPageTransitionState() {
-  var workOverlay = document.getElementById('work-transition-overlay');
-  var workFlyText = document.getElementById('work-flying-text');
   var pageFadeEl = document.getElementById('page-fade');
   var flyingTitleEl = document.getElementById('flying-title');
-
-  if (workOverlay) {
-    gsap.killTweensOf(workOverlay);
-    gsap.set(workOverlay, { opacity: 0 });
-    workOverlay.style.pointerEvents = 'none';
-  }
-
-  if (workFlyText) {
-    gsap.killTweensOf(workFlyText);
-    gsap.set(workFlyText, { opacity: 0, x: 0, y: 0, xPercent: 0, yPercent: 0 });
-    workFlyText.textContent = 'Work';
-  }
 
   if (pageFadeEl) {
     gsap.killTweensOf(pageFadeEl);
@@ -1300,17 +1070,10 @@ function handleIndexPageShow(e) {
 
   resetCrossPageTransitionState();
 
-  _isPageTransitioning = false;
-  document.querySelectorAll('a[data-page-link]').forEach(function (el) {
-    el.style.visibility = '';
-  });
-
   if (isBfcacheRestore) {
-    
-    
     _forceScrollTop();
     if (lenis) lenis.scrollTo(0, { immediate: true });
-    ScrollTrigger.refresh();
+    scheduleScrollRefresh();
   }
 
   if (hasReturnFlag || isBfcacheRestore) {
@@ -1323,148 +1086,4 @@ window.addEventListener('pageshow', handleIndexPageShow);
 document.addEventListener('visibilitychange', function () {
   if (document.hidden) return;
   if (master && master.progress() < 1) master.progress(1);
-});
-
-let _isPageTransitioning = false;
-
-function runPageTransition(linkEl, label, sessionKey, href) {
-  if (!linkEl || _isPageTransitioning) return;
-  if (window._projectOpen) return;
-
-  const overlay = document.getElementById('work-transition-overlay');
-  const flyText = document.getElementById('work-flying-text');
-  if (!overlay || !flyText) return;
-
-  _isPageTransitioning = true;
-
-  
-  linkEl.style.visibility = 'hidden';
-
-  const rect = linkEl.getBoundingClientRect();
-  flyText.textContent = label;
-
-  gsap.killTweensOf([overlay, flyText]);
-  gsap.set(overlay, { opacity: 0 });
-  gsap.set(flyText, {
-    left: rect.left,
-    top: rect.top,
-    fontSize: getComputedStyle(linkEl).fontSize,
-    opacity: 1,
-    xPercent: 0,
-    yPercent: 0,
-    x: 0,
-    y: 0,
-  });
-
-  const tl = gsap.timeline();
-
-  tl.to(overlay, { opacity: 1, duration: 0.7, ease: 'power2.inOut' }, 0);
-
-  tl.to(flyText, {
-    left: '3rem',
-    top: '3rem',
-    xPercent: 0,
-    yPercent: 0,
-    fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
-    duration: 1,
-    ease: 'power3.inOut',
-  }, 0.2);
-
-  tl.add(() => {
-    sessionStorage.setItem(sessionKey, '1');
-    window.location.href = href;
-  }, 1.3);
-}
-
-const PAGE_LINK_ROUTES = {
-  work: { label: 'Work', sessionKey: 'work-transition', href: 'works/' },
-};
-
-function resolvePageRoute(linkEl) {
-  if (!linkEl) return null;
-  const routeKey = linkEl.getAttribute('data-page-link');
-  return PAGE_LINK_ROUTES[routeKey] || null;
-}
-
-document.querySelectorAll('a[data-page-link]').forEach(function (linkEl) {
-  const route = resolvePageRoute(linkEl);
-  if (!route) return;
-
-  const rawHref = (linkEl.getAttribute('href') || '').trim();
-  if (!rawHref || rawHref === '#') {
-    linkEl.setAttribute('href', route.href);
-  }
-});
-
-document.addEventListener('click', function (e) {
-  if (e.defaultPrevented) return;
-  if (e.button !== 0) return;
-  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-
-  const target = e.target;
-  if (!(target instanceof Element)) return;
-
-  const linkEl = target.closest('a[data-page-link]');
-  if (!linkEl) return;
-
-  const route = resolvePageRoute(linkEl);
-  if (!route) return;
-
-  e.preventDefault();
-  runPageTransition(linkEl, route.label, route.sessionKey, route.href);
-}, true);
-
-// --- AWARDS LOGIC ---
-document.addEventListener("DOMContentLoaded", () => {
-  const awardItems = gsap.utils.toArray('.award-item');
-  if (awardItems.length > 0) {
-    // ScrollTrigger to highlight the line closest to the center
-    awardItems.forEach(item => {
-      ScrollTrigger.create({
-        trigger: item,
-        start: "top center+=15%", // adjust triggers so they catch the line better
-        end: "bottom center-=15%",
-        toggleClass: { targets: item, className: "active-award" }
-      });
-    });
-
-    // Custom cursor logic: Show project cover when hovering on award items
-    const awardCursor = document.createElement('img');
-    awardCursor.style.position = 'fixed';
-    awardCursor.style.top = '0';
-    awardCursor.style.left = '0';
-    awardCursor.style.width = '250px';
-    awardCursor.style.height = 'auto';
-    awardCursor.style.borderRadius = '5px';
-    awardCursor.style.pointerEvents = 'none';
-    awardCursor.style.zIndex = '99999';
-    document.body.appendChild(awardCursor);
-    
-    // Set initial bounds via GSAP directly
-    gsap.set(awardCursor, { xPercent: -50, yPercent: -50, scale: 0.8, opacity: 0 });
-
-    let isAwardHovered = false;
-
-    window.addEventListener('mousemove', (e) => {
-      if (isAwardHovered) {
-        gsap.set(awardCursor, { x: e.clientX, y: e.clientY });
-      }
-    });
-
-    awardItems.forEach(item => {
-      item.addEventListener('mouseenter', (e) => {
-        isAwardHovered = true;
-        const imgSrc = item.getAttribute('data-cursor-img');
-        if (imgSrc) {
-          awardCursor.src = imgSrc;
-        }
-        gsap.set(awardCursor, { x: e.clientX, y: e.clientY });
-        gsap.to(awardCursor, { opacity: 1, scale: 1, duration: 0.3, overwrite: "auto" });
-      });
-      item.addEventListener('mouseleave', () => {
-        isAwardHovered = false;
-        gsap.to(awardCursor, { opacity: 0, scale: 0.8, duration: 0.3, overwrite: "auto" });
-      });
-    });
-  }
 });
