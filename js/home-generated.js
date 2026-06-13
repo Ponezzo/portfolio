@@ -23,18 +23,11 @@ window.__HOME__ = {
       "taglineHtml": "기본적으로 사용자를 우선으로 한 기획과 개발을 합니다.",
       "taglinePlain": "기본적으로 사용자를 우선으로 한 기획과 개발을 합니다."
     },
-    "reveal": {
-      "phrase": "Basically, I build product experiences."
-    },
     "about": {
-      "textHtml": "기능의 수가 아니라, <span class=\"other-accent\">사용자가 체감하는 가치</span>로<br>제품을 판단하는 PM입니다.",
-      "sub": "삼성생산기술연구소와 협업한 스마트팩토리 3D 대시보드에서 로딩 47% 개선과 AMR 위치 파악 40% 단축을 이끌었습니다. WakWak·Dingading·FLIP을 기획·PM했습니다.",
+      "textHtml": "제목",
+      "sub": "본문",
       "photoSrc": "assets/images/profile/taegeon.jpg",
-      "photoAlt": "Taegeon Park",
-      "infoLink": {
-        "label": "Info",
-        "href": "info/"
-      }
+      "photoAlt": "Taegeon Park"
     },
     "skills": {
       "subtitle": "Compétences",
@@ -105,10 +98,6 @@ window.__HOME__ = {
         {
           "label": "Work",
           "href": "works/"
-        },
-        {
-          "label": "Info",
-          "href": "info/"
         },
         {
           "label": "Contact",

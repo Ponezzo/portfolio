@@ -8,7 +8,6 @@ import { fileURLToPath } from 'node:url';
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
 const pages = [
-  { file: 'info/index.html', css: '../styles/info.css', js: 'info.js' },
   { file: 'contact/index.html', css: '../styles/contact.css', js: 'contact.js' },
   { file: 'works/index.html', css: '../styles/works.css', js: 'works.js' },
 ];

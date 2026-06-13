@@ -30,8 +30,6 @@
       photo.src = about.photoSrc;
       photo.alt = about.photoAlt;
     }
-    const info = document.querySelector('.about-btn [data-chr]');
-    if (info) info.setAttribute('data-chr', about.infoLink?.label ?? 'Info');
   }
 
   function applySkills(skills) {
@@ -85,10 +83,6 @@
     if (last) last.textContent = footer.nameLast;
   }
 
-  function applyReveal(reveal) {
-    setText('reveal-phrase', reveal.phrase);
-  }
-
   function applyPreview(preview) {
     const label = document.querySelector('.proj-label');
     const cursor = document.getElementById('proj-cursor');
@@ -105,7 +99,6 @@
     const c = home.content ?? home;
     applyPreloader(c.preloader ?? home.preloader);
     applyHero(c.hero ?? home.hero);
-    applyReveal(c.reveal ?? home.reveal);
     applyAbout(c.about ?? home.about);
     applyProjects(home.projects);
     applySkills(c.skills ?? home.skills);

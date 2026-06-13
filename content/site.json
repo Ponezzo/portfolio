@@ -8,7 +8,6 @@
   },
   "nav": [
     { "id": "work", "label": "Work", "href": "works/" },
-    { "id": "info", "label": "Info", "href": "info/" },
     { "id": "contact", "label": "Contact", "href": "contact/" }
   ],
   "home": {

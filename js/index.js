@@ -345,13 +345,15 @@ async function setupScrollReveal() {
   const textOnlyReveal = revealWrap && revealWrap.classList.contains('reveal-image-wrap--text-only');
   const ctx = canvas ? canvas.getContext('2d') : null;
 
-  
   const phraseEl = document.getElementById('reveal-phrase');
-  phraseEl.innerHTML = [...phraseEl.textContent].map(ch =>
-    `<span class="rp-char" style="display:inline-block;">${ch === ' ' ? ' ' : ch}</span>`
-  ).join('');
-  const phraseChars = phraseEl.querySelectorAll('.rp-char');
-  gsap.set(phraseChars, isMobile ? { opacity: 0 } : { opacity: 0, filter: 'blur(10px)' });
+  let phraseChars = [];
+  if (phraseEl) {
+    phraseEl.innerHTML = [...phraseEl.textContent].map(ch =>
+      `<span class="rp-char" style="display:inline-block;">${ch === ' ' ? ' ' : ch}</span>`
+    ).join('');
+    phraseChars = phraseEl.querySelectorAll('.rp-char');
+    gsap.set(phraseChars, isMobile ? { opacity: 0 } : { opacity: 0, filter: 'blur(10px)' });
+  }
 
   
   const FRAME_DIR = 'assets/images/hero%20sequence/';
@@ -492,21 +494,22 @@ async function setupScrollReveal() {
   scrollTl.fromTo('#hero-tagline', { opacity: 1 }, { opacity: 0, duration: 0.15, ease: 'none' }, 0);
   scrollTl.fromTo('#hero-line', { opacity: 1 }, { opacity: 0, duration: 0.15, ease: 'none' }, 0);
 
-  
-  scrollTl.fromTo(revealWrap, { opacity: 0 }, { opacity: 1, duration: 0.01 }, 0.3);
-  if (!textOnlyReveal && revealSeq.length) {
-    scrollTl.fromTo(revealSeq, { scale: 0 }, {
-      scale: 1,
-      duration: 0.7,
-      ease: 'none',
-    }, 0.3);
-  } else {
-    scrollTl.fromTo('#reveal-phrase', { scale: 0.85, opacity: 0 }, {
-      scale: 1,
-      opacity: 1,
-      duration: 0.7,
-      ease: 'none',
-    }, 0.3);
+  if (revealWrap) {
+    scrollTl.fromTo(revealWrap, { opacity: 0 }, { opacity: 1, duration: 0.01 }, 0.3);
+    if (!textOnlyReveal && revealSeq.length) {
+      scrollTl.fromTo(revealSeq, { scale: 0 }, {
+        scale: 1,
+        duration: 0.7,
+        ease: 'none',
+      }, 0.3);
+    } else if (phraseChars.length) {
+      scrollTl.fromTo('#reveal-phrase', { scale: 0.85, opacity: 0 }, {
+        scale: 1,
+        opacity: 1,
+        duration: 0.7,
+        ease: 'none',
+      }, 0.3);
+    }
   }
 
   
@@ -518,14 +521,15 @@ async function setupScrollReveal() {
 
   scrollTl.set(nameLayer, { autoAlpha: 0 }, 0.98);
 
-  
-  scrollTl.to(phraseChars, {
-    opacity: 1,
-    ...(isMobile ? {} : { filter: 'blur(0px)' }),
-    duration: 0.06,
-    ease: 'none',
-    stagger: { each: 0.007, from: 'start' },
-  }, 0.62);
+  if (phraseChars.length) {
+    scrollTl.to(phraseChars, {
+      opacity: 1,
+      ...(isMobile ? {} : { filter: 'blur(0px)' }),
+      duration: 0.06,
+      ease: 'none',
+      stagger: { each: 0.007, from: 'start' },
+    }, 0.62);
+  }
 
   const REVEAL_PHASE_START = 0.3;
   const REVEAL_PHASE_DURATION = 0.7;
@@ -563,47 +567,53 @@ async function setupScrollReveal() {
   const revealOverlay = document.getElementById('reveal-overlay');
 
   const exitTl = gsap.timeline({ paused: true });
-  if (!textOnlyReveal) {
-    exitTl.to(revealWrap, { y: '-50vh', ease: 'none', duration: 1 }, 0);
-    if (revealOverlay) {
-      exitTl.to(revealOverlay, { opacity: 0.7, ease: 'none', duration: 0.66 }, 0);
-      if (!isMobile && (CSS.supports('backdrop-filter', 'blur(1px)') || CSS.supports('-webkit-backdrop-filter', 'blur(1px)'))) {
-        gsap.set(revealOverlay, { backdropFilter: 'blur(0px)' });
-        exitTl.to(revealOverlay, { backdropFilter: 'blur(16px)', ease: 'none', duration: 1 }, 0);
+  if (revealWrap) {
+    if (!textOnlyReveal) {
+      exitTl.to(revealWrap, { y: '-50vh', ease: 'none', duration: 1 }, 0);
+      if (revealOverlay) {
+        exitTl.to(revealOverlay, { opacity: 0.7, ease: 'none', duration: 0.66 }, 0);
+        if (!isMobile && (CSS.supports('backdrop-filter', 'blur(1px)') || CSS.supports('-webkit-backdrop-filter', 'blur(1px)'))) {
+          gsap.set(revealOverlay, { backdropFilter: 'blur(0px)' });
+          exitTl.to(revealOverlay, { backdropFilter: 'blur(16px)', ease: 'none', duration: 1 }, 0);
+        }
       }
+    } else {
+      exitTl.to(revealWrap, { y: '-30vh', ease: 'none', duration: 1 }, 0);
     }
-  } else {
-    exitTl.to(revealWrap, { y: '-30vh', ease: 'none', duration: 1 }, 0);
   }
-  const phraseExitTl = gsap.timeline({ paused: true });
-  phraseExitTl.to(phraseChars, {
-    opacity: 0,
-    duration: 0.2,
-    ease: 'none',
-    immediateRender: false,
-    stagger: { each: 0.01, from: 'end' },
-  });
-  ScrollTrigger.create({
-    trigger: '#section-after',
-    start: 'top bottom',
-    end: 'top top',
-    scrub: true,
-    animation: phraseExitTl,
-  });
+  if (phraseChars.length) {
+    const phraseExitTl = gsap.timeline({ paused: true });
+    phraseExitTl.to(phraseChars, {
+      opacity: 0,
+      duration: 0.2,
+      ease: 'none',
+      immediateRender: false,
+      stagger: { each: 0.01, from: 'end' },
+    });
+    ScrollTrigger.create({
+      trigger: '#section-after',
+      start: 'top bottom',
+      end: 'top top',
+      scrub: true,
+      animation: phraseExitTl,
+    });
+  }
 
-  ScrollTrigger.create({
-    trigger: '#section-after',
-    start: 'top bottom',
-    end: 'top top',
-    scrub: true,
-    animation: exitTl,
-    onUpdate: (self) => {
-      const exitFrameProgress = FRAME_PROGRESS_AT_EXIT_START + (self.progress * (1 - FRAME_PROGRESS_AT_EXIT_START));
-      drawFrameAtProgress(exitFrameProgress);
-    },
-    onLeave: () => drawFrameAtProgress(1),
-    onLeaveBack: () => drawFrameAtProgress(FRAME_PROGRESS_AT_EXIT_START),
-  });
+  if (revealWrap) {
+    ScrollTrigger.create({
+      trigger: '#section-after',
+      start: 'top bottom',
+      end: 'top top',
+      scrub: true,
+      animation: exitTl,
+      onUpdate: (self) => {
+        const exitFrameProgress = FRAME_PROGRESS_AT_EXIT_START + (self.progress * (1 - FRAME_PROGRESS_AT_EXIT_START));
+        drawFrameAtProgress(exitFrameProgress);
+      },
+      onLeave: () => drawFrameAtProgress(1),
+      onLeaveBack: () => drawFrameAtProgress(FRAME_PROGRESS_AT_EXIT_START),
+    });
+  }
 
   
   setupAboutSection();
@@ -719,14 +729,16 @@ function setupProjectsSection() {
 
   function showPreviewPanel() {
     preview.classList.add('visible');
-    gsap.set(preview, { clearProps: 'opacity' });
+    gsap.to(preview, { opacity: 1, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
+    gsap.set(card, { clearProps: 'opacity' });
     _projectsVisible = true;
   }
 
   function hidePreviewPanel() {
     preview.classList.remove('visible');
     _projectsVisible = false;
-    gsap.to(card, { opacity: 0, duration: 0.25, ease: 'power2.in' });
+    gsap.to(preview, { opacity: 0, duration: 0.18, ease: 'power2.in', overwrite: 'auto' });
+    gsap.to(card, { opacity: 0, duration: 0.18, ease: 'power2.in', overwrite: 'auto' });
     currentIdx = -1;
     items.forEach(item => item.classList.remove('active'));
   }
@@ -756,15 +768,25 @@ function setupProjectsSection() {
   if (projectsExit) {
     gsap.to(preview, {
       opacity: 0,
-      ease: 'none',
+      ease: 'power3.in',
       scrollTrigger: {
         trigger: projectsExit,
-        start: 'top 75%',
-        end: 'bottom top',
-        scrub: 0.6,
+        start: 'top 96%',
+        end: 'top 62%',
+        scrub: 0.04,
+        onLeave: () => preview.classList.remove('visible'),
+        onEnterBack: () => {
+          if (_projectsVisible) preview.classList.add('visible');
+        },
       },
     });
   }
+
+  ScrollTrigger.create({
+    trigger: '#skills',
+    start: 'top 96%',
+    onEnter: hidePreviewPanel,
+  });
 
   
   const itemQuickX = [...items].map(item =>
@@ -1197,17 +1219,17 @@ function setupProjectsSection() {
         
         var docH = document.documentElement.scrollHeight - window.innerHeight;
         var pageP = docH > 0 ? Math.round((window.scrollY / docH) * 100) : 0;
-        pctEl.textContent = '(' + pageP + ')';
+        if (pctEl) pctEl.textContent = '(' + pageP + ')';
 
         if (progress <= 0 || progress >= 0.90) {
           timeline.classList.remove('visible');
-          pctEl.classList.remove('visible');
+          if (pctEl) pctEl.classList.remove('visible');
           timeline.style.opacity = '';
-          pctEl.style.opacity = '';
+          if (pctEl) pctEl.style.opacity = '';
           return;
         }
         timeline.classList.add('visible');
-        pctEl.classList.add('visible');
+        if (pctEl) pctEl.classList.add('visible');
 
         var activeIdx = 0;
         var cumul = 0;
@@ -1276,21 +1298,21 @@ function setupProjectsSection() {
     if (!arrow) return;
 
     gsap.fromTo(arrow,
-      { xPercent: 0 },
+      { x: 0 },
       {
-        xPercent: 100,
         x: function () {
-          var left = arrow.parentElement;
-          var pad = parseFloat(getComputedStyle(left).paddingLeft) + parseFloat(getComputedStyle(left).paddingRight);
-          return left.clientWidth - pad - arrow.offsetWidth;
+          var track = document.querySelector('.skills-arrow-track');
+          var host = arrow.parentElement;
+          if (!track || !host) return 0;
+          return Math.max(0, track.clientWidth - arrow.offsetWidth);
         },
         ease: 'none',
         scrollTrigger: {
           trigger: '#skills',
           start: 'top top',
-          endTrigger: '#footer-transition',
-          end: 'top bottom',
-          scrub: 0.5,
+          endTrigger: '#skills-separator',
+          end: 'bottom center',
+          scrub: 0.35,
         }
       }
     );
@@ -2227,7 +2249,6 @@ function runPageTransition(linkEl, label, sessionKey, href) {
 
 const PAGE_LINK_ROUTES = {
   work: { label: 'Work', sessionKey: 'work-transition', href: 'works/' },
-  info: { label: 'Info', sessionKey: 'info-transition', href: 'info/' },
   contact: { label: 'Contact', sessionKey: 'contact-transition', href: 'contact/' },
 };
 

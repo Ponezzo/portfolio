@@ -135,7 +135,7 @@ body {
   z-index: 2;
   flex-shrink: 0;
   font-family: 'Breton', sans-serif;
-  font-size: clamp(1rem, 1vw, 1.25rem);
+  font-size: clamp(1.5rem, 10vw, 12rem);
   line-height: 1.2;
   letter-spacing: -0.02em;
   color: #f0f0f0;
@@ -143,7 +143,7 @@ body {
 
 #preloader-luke {
   font-family: 'Breton', sans-serif;
-  font-size: clamp(1rem, 1vw, 1.25rem);
+  font-size: clamp(1.5rem, 10vw, 12rem);
   font-weight: 300;
   line-height: 1.2;
   letter-spacing: -0.08em;
@@ -175,7 +175,7 @@ body {
 
 .name-layer--settled #preloader-logo,
 .name-layer--settled #preloader-luke {
-  font-size: clamp(0.85rem, 0.9vw, 1.1rem);
+  font-size: clamp(1.4rem, 9vw, 11rem);
   mix-blend-mode: difference;
 }
 
@@ -674,12 +674,10 @@ a.chr-hover {
   pointer-events: none;
   opacity: 0;
   z-index: 30005;
-  transition: opacity 0.4s ease;
 }
 
 .proj-preview.visible {
   pointer-events: auto;
-  opacity: 1 !important;
 }
 
 .proj-card {
@@ -1060,6 +1058,7 @@ a.chr-hover {
 }
 
 .scroll-pct {
+  display: none !important;
   position: fixed;
   left: 2rem;
   top: 50%;
@@ -1151,6 +1150,7 @@ a.chr-hover {
   padding-left: 8rem;
   padding-right: 4rem;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .skills-subtitle {
@@ -1193,7 +1193,17 @@ a.chr-hover {
   margin-bottom: 3rem;
 }
 
+.skills-arrow-track {
+  position: relative;
+  width: 100%;
+  height: clamp(8rem, 14vw, 12rem);
+  overflow: hidden;
+}
+
 .skills-arrow {
+  position: absolute;
+  left: 0;
+  top: 0;
   font-size: clamp(8rem, 14vw, 12rem);
   color: var(--prism-hot);
   line-height: 1;
