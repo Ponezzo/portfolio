@@ -30,7 +30,7 @@ window.__HOME__ = {
       "photoAlt": "Taegeon Park"
     },
     "skills": {
-      "subtitle": "Compétences",
+      "subtitle": "Skills",
       "text": "본문",
       "groups": [
         {
@@ -57,7 +57,7 @@ window.__HOME__ = {
         },
         {
           "id": "devops",
-          "title": "DevOps & Outils",
+          "title": "DevOps & Tools",
           "items": [
             "Git",
             "GitHub",
@@ -97,10 +97,6 @@ window.__HOME__ = {
         {
           "label": "Work",
           "href": "works/"
-        },
-        {
-          "label": "Contact",
-          "href": "contact/"
         }
       ]
     },

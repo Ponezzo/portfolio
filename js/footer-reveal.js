@@ -347,21 +347,21 @@
         return inners;
       }
 
-      var lukeEl = footerEl.querySelector('.footer-name-luke');
-      var baffaitEl = footerEl.querySelector('.footer-name-baffait');
+      var firstEl = footerEl.querySelector('.footer-name-first');
+      var lastEl = footerEl.querySelector('.footer-name-last');
       var dotEl = footerEl.querySelector('.footer-name-dot');
-      if (!lukeEl || !baffaitEl) return;
+      if (!firstEl || !lastEl) return;
 
-      var lukeChars = rebuildChars(lukeEl, true);
-      var baffaitChars = rebuildChars(baffaitEl, false);
+      var firstChars = rebuildChars(firstEl, true);
+      var lastChars = rebuildChars(lastEl, false);
       var dotChars = dotEl ? rebuildChars(dotEl, false) : [];
       var ordered = [];
-      var lukeRev = lukeChars.slice().reverse();
-      var rightSide = baffaitChars.concat(dotChars);
-      var maxLen = Math.max(lukeRev.length, rightSide.length);
+      var firstRev = firstChars.slice().reverse();
+      var rightSide = lastChars.concat(dotChars);
+      var maxLen = Math.max(firstRev.length, rightSide.length);
       for (var i = 0; i < maxLen; i++) {
         if (rightSide[i]) ordered.push(rightSide[i]);
-        if (lukeRev[i]) ordered.push(lukeRev[i]);
+        if (firstRev[i]) ordered.push(firstRev[i]);
       }
 
       gsap.set(ordered, { yPercent: 110 });

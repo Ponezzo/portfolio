@@ -7,27 +7,20 @@
     "location": "Seoul, Korea"
   },
   "nav": [
-    { "id": "work", "label": "Work", "href": "works/" },
-    { "id": "contact", "label": "Contact", "href": "contact/" }
+    { "id": "work", "label": "Work", "href": "works/" }
   ],
   "home": {
     "heroTitle": "Creative Developer",
     "heroSubtitle": "Building interfaces with motion, clarity, and prism-light aesthetics.",
-    "ctaWork": "View Work",
-    "ctaContact": "Contact"
+    "ctaWork": "View Work"
   },
   "info": {
     "title": "Info",
     "bio": "I design and ship product experiences where data, motion, and visual craft meet. SSAFY-trained PM with hands-on front-end experience across smart factory, AI, and community products.",
     "skills": ["Product Strategy", "UX Planning", "JavaScript", "Vue / Next.js", "GSAP", "Three.js"]
   },
-  "contact": {
-    "title": "Contact",
-    "headline": "Let's build something memorable.",
-    "note": "Available for PM and creative developer collaborations."
-  },
   "footer": {
     "copyright": "© 2026 Taegeon Park",
-    "credit": "Layout inspired by lukebaffait.fr · Prism style inspired by aerukart.com"
+    "credit": "TGP Portfolio — Taegeon Park"
   }
 }

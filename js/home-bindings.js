@@ -15,7 +15,7 @@
 
   function applyPreloader(c) {
     setText('preloader-logo', c.logo);
-    setText('preloader-luke', c.firstName);
+    setText('preloader-name-rest', c.firstName);
   }
 
   function applyHero(hero) {
@@ -74,10 +74,10 @@
     document.querySelectorAll('.footer-date').forEach((date) => {
       date.setAttribute('data-chr-footer', footer.copyright);
     });
-    document.querySelectorAll('.footer-name-luke').forEach((first) => {
+    document.querySelectorAll('.footer-name-first').forEach((first) => {
       first.innerHTML = `<span class="first-letter">${footer.nameFirst.charAt(0)}</span>${footer.nameFirst.slice(1)}`;
     });
-    document.querySelectorAll('.footer-name-baffait').forEach((last) => {
+    document.querySelectorAll('.footer-name-last').forEach((last) => {
       last.textContent = footer.nameLast;
     });
   }

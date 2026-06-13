@@ -6,7 +6,7 @@
     "editablePage": "🏠 Home (Editable)",
     "masterFrame": "sync/master",
     "frameWidth": 1440,
-    "namespace": "prism-portfolio"
+    "namespace": "tgp-portfolio"
   },
   "contentLayers": {
     "content/preloader.logo": "content.preloader.logo",

@@ -29,7 +29,7 @@
       "photoAlt": "Taegeon Park"
     },
     "skills": {
-      "subtitle": "Compétences",
+      "subtitle": "Skills",
       "text": "본문",
       "groups": [
         {
@@ -56,7 +56,7 @@
         },
         {
           "id": "devops",
-          "title": "DevOps & Outils",
+          "title": "DevOps & Tools",
           "items": [
             "Git",
             "GitHub",
@@ -96,10 +96,6 @@
         {
           "label": "Work",
           "href": "works/"
-        },
-        {
-          "label": "Contact",
-          "href": "contact/"
         }
       ]
     },

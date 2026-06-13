@@ -1,5 +1,5 @@
 /**
- * Fix subpage paths for GitHub Pages + prism scripts
+ * Fix subpage paths for GitHub Pages
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -8,7 +8,6 @@ import { fileURLToPath } from 'node:url';
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
 const pages = [
-  { file: 'contact/index.html', css: '../styles/contact.css', js: 'contact.js' },
   { file: 'works/index.html', css: '../styles/works.css', js: 'works.js' },
 ];
 
@@ -25,8 +24,7 @@ for (const page of pages) {
   html = html.replace(/href="styles\/[^"]+"/g, `href="${page.css}"`);
   html = html.replace(/href="assets\//g, 'href="../assets/');
   html = html.replace(/src="assets\//g, 'src="../assets/');
-  html = html.replace(/Luke Baffait/g, 'Taegeon Park');
-  html = html.replace(/luke\.baffait@yahoo\.com/g, 'taegeonpark97@gmail.com');
+  html = html.replace(/taegeonpark97@gmail.com/g, 'taegeonpark97@gmail.com');
   html = html.replace(/https:\/\/github\.com\/SkyNigh1/g, 'https://github.com/Ponezzo');
   html = html.replace(
     /<script defer src="js\/i18n\.js"><\/script>[\s\S]*?<script defer src="js\/[^"]+\.js"><\/script>/,

@@ -64,7 +64,7 @@ const introBg = document.getElementById('intro-bg');
 const pContent = document.getElementById('preloader-content');
 const pNameLeft = document.getElementById('preloader-name-left');
 const pLogo = document.getElementById('preloader-logo');
-const pLuke = document.getElementById('preloader-luke');
+const pNameRest = document.getElementById('preloader-name-rest');
 const tPanelRed = document.getElementById('t-panel-red');
 const tPanelDark = document.getElementById('t-panel-dark');
 const hero = document.getElementById('hero');
@@ -74,7 +74,7 @@ function syncPreloaderContent() {
   const preloader = window.__HOME__?.content?.preloader;
   if (!preloader) return;
   if (pLogo) pLogo.textContent = preloader.logo ?? 'T';
-  if (pLuke) pLuke.textContent = preloader.firstName ?? '';
+  if (pNameRest) pNameRest.textContent = preloader.firstName ?? '';
 }
 
 function splitIntoChars(el) {
@@ -98,18 +98,18 @@ function splitIntoChars(el) {
 syncPreloaderContent();
 
 const logoChar = splitIntoChars(pLogo);
-const lukeChars = splitIntoChars(pLuke);
-const allRevealEls = [...logoChar, ...lukeChars];
+const nameRestChars = splitIntoChars(pNameRest);
+const allRevealEls = [...logoChar, ...nameRestChars];
 
 function ensureIntroNameVisible() {
   gsap.set(nameLayer, { autoAlpha: 1, visibility: 'visible' });
-  gsap.set([pContent, pLogo, pLuke], { opacity: 1, visibility: 'visible' });
+  gsap.set([pContent, pLogo, pNameRest], { opacity: 1, visibility: 'visible' });
   gsap.set(allRevealEls, { opacity: 1, visibility: 'visible' });
 }
 
 
 function getNameFontEl() {
-  return pLuke || pLogo;
+  return pNameRest || pLogo;
 }
 
 function getTotalWidth() {
@@ -174,7 +174,7 @@ function placeIntroNameAtBottom() {
   const offsetY = targetBottom - newH / 2 - vh / 2;
   gsap.set(nameLayer, { autoAlpha: 1, clearProps: 'mixBlendMode' });
   gsap.set(pContent, { x: `${offsetX_vw}vw`, y: offsetY, scale: 1, transformOrigin: '50% 50%' });
-  [pLogo, pLuke].forEach((el) => {
+  [pLogo, pNameRest].forEach((el) => {
     if (!el) return;
     el.style.fontSize = '';
   });
@@ -189,7 +189,7 @@ function applyIntroFinalState() {
   const baseFontSize = fontEl ? parseFloat(getComputedStyle(fontEl).fontSize) : 48;
   const viewportSize = getViewportSize();
   const vwSize = (baseFontSize / viewportSize.width) * 100;
-  [pLogo, pLuke].forEach((el) => {
+  [pLogo, pNameRest].forEach((el) => {
     if (el) el.style.fontSize = `${vwSize}vw`;
   });
   void pContent.offsetWidth;
@@ -342,7 +342,7 @@ async function setupScrollReveal() {
   }
 
   
-  [pContent, pLogo, pLuke].forEach(el => gsap.killTweensOf(el));
+  [pContent, pLogo, pNameRest].forEach(el => gsap.killTweensOf(el));
 
   const revealWrap = document.getElementById('reveal-image-wrap');
   const revealSeq = document.querySelectorAll('.reveal-seq');
@@ -532,7 +532,7 @@ async function setupScrollReveal() {
     const mobile = isMobileViewport();
     const exitLeft = mobile ? '-35vw' : '-55vw';
     scrollTl.fromTo(pLogo, { x: '0vw', opacity: 1 }, { x: exitLeft, opacity: 0, duration: 0.7, ease: 'none' }, 0.3);
-    scrollTl.fromTo(pLuke, { x: '0vw', opacity: 1 }, { x: exitLeft, opacity: 0, duration: 0.7, ease: 'none' }, 0.3);
+    scrollTl.fromTo(pNameRest, { x: '0vw', opacity: 1 }, { x: exitLeft, opacity: 0, duration: 0.7, ease: 'none' }, 0.3);
     scrollTl.set(nameLayer, { autoAlpha: 0 }, 0.98);
 
     if (phraseChars.length) {
@@ -742,6 +742,7 @@ function setupProjectsSection() {
 
   let currentIdx = -1;
   let _projectsInView = false;
+  let _skillsInView = false;
   let _lineReady = false;
   const LINE_FIRST_PROJECT_PROGRESS = 0.17;
   gsap.set(card, { opacity: 0 });
@@ -764,8 +765,15 @@ function setupProjectsSection() {
     if (_projectsInView) onProjectsScroll();
   }
 
+  function isInSkillsZone() {
+    const skills = document.getElementById('skills');
+    if (!skills) return _skillsInView;
+    const rect = skills.getBoundingClientRect();
+    return rect.top < window.innerHeight * 0.85 && rect.bottom > window.innerHeight * 0.15;
+  }
+
   function showPreviewPanel() {
-    if (!_projectsInView) return;
+    if (!_projectsInView || _skillsInView || isInSkillsZone()) return;
     preview.classList.add('visible');
     gsap.to(preview, { opacity: 1, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
   }
@@ -783,7 +791,8 @@ function setupProjectsSection() {
   }
 
   function restorePreviewInProjects() {
-    if (!_projectsInView || currentIdx < 0 || !_lineReady) return;
+    if (!_projectsInView || _skillsInView || isInSkillsZone()) return;
+    if (currentIdx < 0 || !_lineReady) return;
     preview.classList.add('visible');
     gsap.to(preview, { opacity: 1, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
     gsap.to(card, { opacity: 1, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
@@ -806,18 +815,12 @@ function setupProjectsSection() {
     trigger: projectsEl,
     start: 'top 80%',
     end: 'bottom top',
-    onEnter: () => {
-      _projectsInView = true;
-      if (currentIdx >= 0 && _lineReady) restorePreviewInProjects();
-    },
+    onEnter: () => { _projectsInView = true; },
     onLeave: () => {
       _projectsInView = false;
       forceHidePreview();
     },
-    onEnterBack: () => {
-      _projectsInView = true;
-      if (currentIdx >= 0 && _lineReady) restorePreviewInProjects();
-    },
+    onEnterBack: () => { _projectsInView = true; },
     onLeaveBack: () => {
       _projectsInView = false;
       forceHidePreview();
@@ -831,11 +834,9 @@ function setupProjectsSection() {
         start: 'top bottom',
         end: 'top 35%',
         scrub: 0.4,
-        onEnter: () => preview.classList.remove('visible'),
+        onEnter: forceHidePreview,
         onLeave: forceHidePreview,
-        onEnterBack: () => {
-          if (_projectsInView && currentIdx >= 0 && _lineReady) restorePreviewInProjects();
-        },
+        onEnterBack: forceHidePreview,
       },
     });
     exitFade.to(preview, { opacity: 0, ease: 'power2.inOut' }, 0);
@@ -845,7 +846,17 @@ function setupProjectsSection() {
   ScrollTrigger.create({
     trigger: '#skills',
     start: 'top bottom',
-    onEnter: forceHidePreview,
+    end: 'bottom top',
+    onEnter: () => {
+      _skillsInView = true;
+      forceHidePreview();
+    },
+    onLeave: () => { _skillsInView = false; },
+    onEnterBack: () => {
+      _skillsInView = true;
+      forceHidePreview();
+    },
+    onLeaveBack: () => { _skillsInView = false; },
   });
 
   
@@ -874,6 +885,10 @@ function setupProjectsSection() {
 
   function onProjectsScroll() {
     if (!_projectsInView || !_lineReady) return;
+    if (_skillsInView || isInSkillsZone()) {
+      forceHidePreview();
+      return;
+    }
     const cy = window.innerHeight / 2;
     const halfH = window.innerHeight / 2;
     let closestIdx = -1, closestDist = Infinity;
@@ -1358,123 +1373,6 @@ function setupProjectsSection() {
   })();
 
   
-  ; (function () {
-    var blobWrap = document.getElementById('contact-blob-wrap');
-    var blob = document.getElementById('contact-blob');
-    var title = document.getElementById('contact-title');
-    var socials = document.getElementById('contact-socials');
-    var mailEl = document.getElementById('contact-mail');
-    var dispo = document.getElementById('contact-dispo');
-    var frame = document.getElementById('contact-frame');
-    var frameImg = document.getElementById('contact-frame-img');
-    var dispo2 = document.getElementById('contact-dispo-2');
-    var frame2 = document.getElementById('contact-frame-2');
-    var frameImg2 = document.getElementById('contact-frame-img-2');
-    var stTimeline = document.getElementById('scroll-timeline');
-    var pctEl = document.getElementById('scroll-pct');
-    if (!blob) return;
-
-    
-    document.querySelectorAll('[data-chr-contact]').forEach(function (el) {
-      var text = el.getAttribute('data-chr-contact');
-      el.removeAttribute('data-chr-contact');
-      Array.from(text).forEach(function (ch, i) {
-        if (ch === ' ') {
-          el.insertAdjacentHTML('beforeend', '<span style="width:0.35em;display:inline-block">&nbsp;</span>');
-          return;
-        }
-        var wrap = document.createElement('span');
-        wrap.className = 'ch-wrap';
-        wrap.style.setProperty('--i', i);
-        const chHTML = window.getCharHTML ? window.getCharHTML(ch) : ch;
-        wrap.innerHTML = '<span class="ch-top">' + chHTML + '</span><span class="ch-bot">' + chHTML + '</span>';
-        el.appendChild(wrap);
-      });
-    });
-
-    var contactBg = document.getElementById('contact-bg');
-
-    ScrollTrigger.create({
-      trigger: '#contact',
-      start: 'top bottom',
-      endTrigger: '#footer-transition',
-      end: 'bottom bottom',
-      onEnter: function () { blobWrap.style.visibility = 'visible'; contactBg.style.display = 'block'; },
-      onLeave: function () { blobWrap.style.visibility = 'hidden'; contactBg.style.display = 'none'; },
-      onLeaveBack: function () { blobWrap.style.visibility = 'hidden'; contactBg.style.display = 'none'; },
-      onEnterBack: function () { blobWrap.style.visibility = 'visible'; contactBg.style.display = 'block'; },
-    });
-    blobWrap.style.visibility = 'hidden';
-
-    var tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '#contact',
-        start: 'top bottom',
-        end: 'bottom bottom',
-        scrub: true,
-      }
-    });
-
-    
-    tl.fromTo(blob,
-      { scale: 0 },
-      { scale: 1, duration: 0.6, ease: 'none' },
-      0
-    );
-
-    
-    tl.to([stTimeline, pctEl], { opacity: 0, duration: 0.08 }, 0.1);
-
-    
-    gsap.set(title, { yPercent: 0, x: function () { return window.innerWidth * 1.1; } });
-    tl.to(title, {
-      x: 0,
-      duration: 0.3,
-      ease: 'power3.out'
-    }, 0.18);
-
-    
-    tl.fromTo(socials,
-      { clipPath: 'inset(0 0 100% 0)' },
-      { clipPath: 'inset(0 0 0% 0)', duration: 0.2, ease: 'none' },
-      0.28
-    );
-
-    tl.fromTo(mailEl,
-      { clipPath: 'inset(0 0 100% 0)' },
-      { clipPath: 'inset(0 0 0% 0)', duration: 0.2, ease: 'none' },
-      0.36
-    );
-
-    var pairStart = 0.22;
-    var frameDur = 0.65;
-    var frameY = function () { return window.innerHeight * 1.1; };
-    var frameYEnd = function () { return -window.innerHeight * 1.4; };
-    var dispoY = function () { return window.innerHeight * 1.1; };
-    var dispoYEnd = function () { return -window.innerHeight * 1.65; };
-
-    if (frame && frameImg && dispo) {
-      gsap.set(frame, { yPercent: -50, y: frameY });
-      gsap.set(frameImg, { yPercent: -30 });
-      tl.to(frame, { y: frameYEnd, duration: frameDur, ease: 'none' }, pairStart);
-      tl.to(frameImg, { yPercent: 30, duration: frameDur, ease: 'none' }, pairStart);
-      gsap.set(dispo, { yPercent: -50, y: dispoY, opacity: 1, clipPath: 'inset(0% 0 0% 0)' });
-      tl.to(dispo, { y: dispoYEnd, duration: frameDur, ease: 'none' }, pairStart);
-      tl.to(dispo, { opacity: 0, clipPath: 'inset(100% 0 0% 0)', duration: 0.15, ease: 'power2.in' }, pairStart + 0.45);
-    }
-
-    if (frame2 && frameImg2 && dispo2) {
-      gsap.set(frame2, { yPercent: -50, y: function () { return window.innerHeight * 1.3; } });
-      gsap.set(frameImg2, { yPercent: -30 });
-      tl.to(frame2, { y: frameYEnd, duration: frameDur, ease: 'none' }, pairStart + 0.07);
-      tl.to(frameImg2, { yPercent: 30, duration: frameDur, ease: 'none' }, pairStart + 0.07);
-      gsap.set(dispo2, { yPercent: -50, y: frameY, opacity: 1, clipPath: 'inset(0% 0 0% 0)' });
-      tl.to(dispo2, { y: frameYEnd, duration: frameDur, ease: 'none' }, pairStart);
-      tl.to(dispo2, { opacity: 0, clipPath: 'inset(100% 0 0% 0)', duration: 0.15, ease: 'power2.in' }, pairStart + 0.45);
-    }
-  })();
-
-  
   if (window.setupFooterRevealBlock) {
     window.setupFooterRevealBlock({
       transition: '#footer-transition',
@@ -1484,71 +1382,6 @@ function setupProjectsSection() {
       hideOnLeave: false,
     });
   }
-
-  ; (function () {
-    var contactPin = document.getElementById('contact-pin');
-    var contactBlobWrap = document.getElementById('contact-blob-wrap');
-    var contactBgEl = document.getElementById('contact-bg');
-    var contactSection = document.getElementById('contact');
-    var ctTitle = document.getElementById('contact-title');
-    var ctSocials = document.getElementById('contact-socials');
-    var ctMail = document.getElementById('contact-mail');
-
-    if (contactPin && contactBlobWrap && contactBgEl && contactSection && ctTitle) {
-      var ftl = gsap.timeline({
-        scrollTrigger: {
-          trigger: '#footer-transition',
-          start: 'top bottom+=550',
-          end: 'bottom bottom',
-          scrub: true,
-          onUpdate: function (self) {
-            var p = self.progress;
-            if (p > 0.2) {
-              contactBgEl.style.display = 'none';
-              contactSection.style.pointerEvents = 'none';
-            } else {
-              contactBgEl.style.display = 'block';
-              contactSection.style.pointerEvents = '';
-            }
-          }
-        }
-      });
-
-      ftl.set(contactBlobWrap, {
-        height: '110vh', overflow: 'hidden',
-        borderRadius: '0 0 0px 0px'
-      }, 0);
-
-      ftl.to(contactBlobWrap, {
-        borderRadius: '0 0 50px 50px',
-        duration: 0.15, ease: 'power2.out'
-      }, 0);
-
-      ftl.to(contactBlobWrap, {
-        y: function () { return -(window.innerHeight * 1.8 + 400); },
-        immediateRender: false,
-        duration: 1.0, ease: 'none'
-      }, 0);
-
-      ftl.to(contactPin, {
-        y: '-40vh', pointerEvents: 'none', immediateRender: false,
-        duration: 1.0, ease: 'none'
-      }, 0);
-
-      if (ctSocials && ctMail) {
-        ftl.fromTo([ctSocials, ctMail],
-          { clipPath: 'inset(0 0 0% 0)' },
-          { clipPath: 'inset(0 0 100% 0)', duration: 0.1, ease: 'none' },
-          0
-        );
-      }
-      ftl.fromTo(ctTitle,
-        { clipPath: 'inset(0 0 0% 0)' },
-        { clipPath: 'inset(0 0 100% 0)', duration: 0.25, ease: 'power2.in' },
-        0
-      );
-    }
-  })();
 
   
   const isEn = window.__I18N_LANG === 'en';
@@ -1785,6 +1618,10 @@ function setupProjectsSection() {
         _flyingSourceItem = null;
       }
       lenis.start();
+      const projectsSection = document.getElementById('projects');
+      if (projectsSection) {
+        lenis.scrollTo(projectsSection, { duration: 1.1, offset: -window.innerHeight * 0.2 });
+      }
       ScrollTrigger.refresh();
     });
   }
@@ -1979,7 +1816,6 @@ function runPageTransition(linkEl, label, sessionKey, href) {
 
 const PAGE_LINK_ROUTES = {
   work: { label: 'Work', sessionKey: 'work-transition', href: 'works/' },
-  contact: { label: 'Contact', sessionKey: 'contact-transition', href: 'contact/' },
 };
 
 function resolvePageRoute(linkEl) {
