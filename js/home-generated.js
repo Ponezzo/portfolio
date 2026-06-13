@@ -15,23 +15,19 @@ window.__HOME__ = {
     "textMuted": "rgba(255,255,255,0.2)"
   },
   "content": {
-    "preloader": {
-      "logo": "T",
-      "firstName": "aegeon"
-    },
     "hero": {
       "taglineHtml": "기본적으로 사용자를 우선으로 한 기획과 개발을 합니다.",
       "taglinePlain": "기본적으로 사용자를 우선으로 한 기획과 개발을 합니다."
     },
     "about": {
-      "textHtml": "제목",
-      "sub": "본문",
+      "textHtml": "기능의 수가 아니라, 사용자가 체감하는 가치로 제품을 판단합니다.",
+      "sub": "<ul class=\"about-facts\"><li>SSAFY PM · SW 아카데미 (2024.07 – 2025.06)</li><li>학사 졸업 · 학점 3.73/4.5 (2019 – 2024)</li><li>SSAFY 기업연계 프로젝트 우수상 · 11개 팀 중 2위 (2025.05)</li><li>삼성생산기술연구소 협업 · 스마트팩토리 3D 대시보드 우수 프로젝트</li><li>해커스교육그룹 기획 인턴 · 재구매율 13%↑, 이탈률 5%p↓ (2022)</li><li>SQLD · ADsP · TOEIC 855</li></ul>",
       "photoSrc": "assets/images/profile/taegeon.jpg",
       "photoAlt": "Taegeon Park"
     },
     "skills": {
       "subtitle": "Skills",
-      "text": "본문",
+      "text": "사용자 경험과 데이터를 기준으로 제품을 기획하고, Vue·React·Three.js로 프로토타입까지 직접 검증합니다.",
       "groups": [
         {
           "id": "frontend",

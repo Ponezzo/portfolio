@@ -12,6 +12,10 @@ if (history.scrollRestoration) {
 const isMobile = navigator.maxTouchPoints > 1;
 const isSlowHardware = isMobile || (navigator.hardwareConcurrency || 8) <= 4;
 
+function isMobileViewport() {
+  return (document.documentElement.clientWidth || window.innerWidth) <= 768;
+}
+
 let lastMouseX = window.innerWidth / 2;
 let lastMouseY = window.innerHeight / 2;
 window.addEventListener('mousemove', (e) => {
@@ -61,65 +65,10 @@ if (!mustSkip) {
 gsap.registerPlugin(ScrollTrigger);
 
 const introBg = document.getElementById('intro-bg');
-const pContent = document.getElementById('preloader-content');
-const pNameLeft = document.getElementById('preloader-name-left');
-const pLogo = document.getElementById('preloader-logo');
-const pNameRest = document.getElementById('preloader-name-rest');
 const tPanelRed = document.getElementById('t-panel-red');
 const tPanelDark = document.getElementById('t-panel-dark');
-const hero = document.getElementById('hero');
-const nameLayer = document.getElementById('name-layer');
 
-function syncPreloaderContent() {
-  const preloader = window.__HOME__?.content?.preloader;
-  if (!preloader) return;
-  if (pLogo) pLogo.textContent = preloader.logo ?? 'T';
-  if (pNameRest) pNameRest.textContent = preloader.firstName ?? '';
-}
-
-function splitIntoChars(el) {
-  const raw = el.textContent;
-  el.innerHTML = '';
-  const inners = [];
-  raw.split('').forEach(ch => {
-    const outer = document.createElement('span');
-    outer.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:top;padding:0.15em 0.3em;margin:-0.15em -0.3em;';
-    const inner = document.createElement('span');
-    inner.className = 'char';
-    inner.style.display = 'inline-block';
-    inner.textContent = ch === ' ' ? ' ' : ch;
-    outer.appendChild(inner);
-    el.appendChild(outer);
-    inners.push(inner);
-  });
-  return inners;
-}
-
-syncPreloaderContent();
-
-const logoChar = splitIntoChars(pLogo);
-const nameRestChars = splitIntoChars(pNameRest);
-const allRevealEls = [...logoChar, ...nameRestChars];
-
-function ensureIntroNameVisible() {
-  gsap.set(nameLayer, { autoAlpha: 1, visibility: 'visible' });
-  gsap.set([pContent, pLogo, pNameRest], { opacity: 1, visibility: 'visible' });
-  gsap.set(allRevealEls, { opacity: 1, visibility: 'visible' });
-}
-
-
-function getNameFontEl() {
-  return pNameRest || pLogo;
-}
-
-function getTotalWidth() {
-  if (!pNameLeft) return pLogo?.offsetWidth || 0;
-  return pNameLeft.offsetWidth;
-}
-
-ensureIntroNameVisible();
-gsap.set(nameLayer, { autoAlpha: 0, display: 'none' });
-gsap.set([pContent, tPanelRed, tPanelDark], { willChange: 'transform' });
+gsap.set([tPanelRed, tPanelDark], { willChange: 'transform' });
 
 function showSiteHeaderLanding() {
   const siteHeader = document.getElementById('site-header');
@@ -141,82 +90,6 @@ function setupSiteHeader() {
     readyClass: 'site-header--ready',
   });
 }
-
-let keepIntroNameAnchored = false;
-let nameAnchorRaf = 0;
-
-function getViewportSize() {
-
-  const root = document.documentElement;
-  return {
-    width: root.clientWidth || window.innerWidth,
-    height: window.innerHeight,
-  };
-}
-
-function isMobileViewport() {
-  return getViewportSize().width <= 768;
-}
-
-let _introSettledXvw = 0;
-
-function placeIntroNameAtBottom() {
-  nameLayer.classList.remove('name-layer--settled');
-  pContent.classList.remove('preloader-content--settled');
-  const totalW = getTotalWidth();
-  const offsetX = -(totalW / 2 - (pLogo?.offsetWidth || 0) / 2);
-  const offsetX_vw = (offsetX / getViewportSize().width) * 100;
-  _introSettledXvw = offsetX_vw;
-  const newH = pContent.offsetHeight;
-  const vh = getViewportSize().height;
-  const bottomPad = isMobileViewport() ? Math.max(vh * 0.12, 80) : 80;
-  const targetBottom = vh - bottomPad;
-  const offsetY = targetBottom - newH / 2 - vh / 2;
-  gsap.set(nameLayer, { autoAlpha: 1, clearProps: 'mixBlendMode' });
-  gsap.set(pContent, { x: `${offsetX_vw}vw`, y: offsetY, scale: 1, transformOrigin: '50% 50%' });
-  [pLogo, pNameRest].forEach((el) => {
-    if (!el) return;
-    el.style.fontSize = '';
-  });
-}
-
-function applyIntroFinalState() {
-  if (!pContent || !nameLayer) return;
-  pContent.style.visibility = 'hidden';
-  gsap.set(pContent, { scale: 1, x: 0, y: 0 });
-  gsap.set(nameLayer, { mixBlendMode: 'difference' });
-  const fontEl = getNameFontEl();
-  const baseFontSize = fontEl ? parseFloat(getComputedStyle(fontEl).fontSize) : 48;
-  const viewportSize = getViewportSize();
-  const vwSize = (baseFontSize / viewportSize.width) * 100;
-  [pLogo, pNameRest].forEach((el) => {
-    if (el) el.style.fontSize = `${vwSize}vw`;
-  });
-  void pContent.offsetWidth;
-  placeIntroNameAtBottom();
-  keepIntroNameAnchored = true;
-  pContent.style.visibility = 'visible';
-}
-
-function refreshIntroNameAnchor() {
-  if (!keepIntroNameAnchored) return;
-  if (nameAnchorRaf) cancelAnimationFrame(nameAnchorRaf);
-  nameAnchorRaf = requestAnimationFrame(() => {
-    nameAnchorRaf = 0;
-    placeIntroNameAtBottom();
-  });
-}
-
-function stopIntroNameAnchor() {
-  keepIntroNameAnchored = false;
-  if (nameAnchorRaf) {
-    cancelAnimationFrame(nameAnchorRaf);
-    nameAnchorRaf = 0;
-  }
-  window.removeEventListener('resize', refreshIntroNameAnchor);
-}
-
-window.addEventListener('resize', refreshIntroNameAnchor);
 
 const master = gsap.timeline({ delay: 0.15 });
 
@@ -296,8 +169,7 @@ master.add(() => {
   lenis.start();
   lenis.scrollTo(0, { immediate: true });
 
-  allRevealEls.forEach(ch => { ch.style.willChange = 'auto'; });
-  gsap.set([pContent, tPanelRed, tPanelDark], { willChange: 'auto' });
+  gsap.set([tPanelRed, tPanelDark], { willChange: 'auto' });
   document.getElementById('hero-tagline')?.style.setProperty('will-change', 'auto');
   document.getElementById('hero-line')?.style.setProperty('will-change', 'auto');
   document.querySelectorAll('.ch-top').forEach(el => { el.style.willChange = 'auto'; });
@@ -336,14 +208,6 @@ if (mustSkip) {
 }
 
 async function setupScrollReveal() {
-  if (nameAnchorRaf) {
-    cancelAnimationFrame(nameAnchorRaf);
-    nameAnchorRaf = 0;
-  }
-
-  
-  [pContent, pLogo, pNameRest].forEach(el => gsap.killTweensOf(el));
-
   const revealWrap = document.getElementById('reveal-image-wrap');
   const revealSeq = document.querySelectorAll('.reveal-seq');
   const canvas = document.getElementById('reveal-canvas');
@@ -489,12 +353,6 @@ async function setupScrollReveal() {
     drawFrame(0);
   }
 
-  const introSettledY = Number(gsap.getProperty(pContent, 'y')) || 0;
-  const introXvw = `${_introSettledXvw}vw`;
-  const useFooterLanding = !!document.getElementById('site-header');
-
-  const REVEAL_PHASE_START = 0.3;
-  const REVEAL_PHASE_DURATION = 0.7;
   const FRAME_PROGRESS_AT_EXIT_START = 0.82;
 
   function drawFrameAtProgress(progress) {
@@ -502,68 +360,6 @@ async function setupScrollReveal() {
     const clamped = Math.min(1, Math.max(0, progress));
     const idx = Math.round(clamped * (TOTAL_FRAMES - 1));
     drawFrame(idx);
-  }
-
-  if (!useFooterLanding) {
-    const scrollTl = gsap.timeline({ paused: true });
-
-    scrollTl.fromTo(pContent, { x: introXvw, y: introSettledY }, { x: introXvw, y: 0, duration: 0.3, ease: 'none' }, 0);
-    scrollTl.fromTo('#hero-tagline', { opacity: 1 }, { opacity: 0, duration: 0.15, ease: 'none' }, 0);
-    scrollTl.fromTo('#hero-line', { opacity: 1 }, { opacity: 0, duration: 0.15, ease: 'none' }, 0);
-
-    if (revealWrap) {
-      scrollTl.fromTo(revealWrap, { opacity: 0 }, { opacity: 1, duration: 0.01 }, 0.3);
-      if (!textOnlyReveal && revealSeq.length) {
-        scrollTl.fromTo(revealSeq, { scale: 0 }, {
-          scale: 1,
-          duration: 0.7,
-          ease: 'none',
-        }, 0.3);
-      } else if (phraseChars.length) {
-        scrollTl.fromTo('#reveal-phrase', { scale: 0.85, opacity: 0 }, {
-          scale: 1,
-          opacity: 1,
-          duration: 0.7,
-          ease: 'none',
-        }, 0.3);
-      }
-    }
-
-    const mobile = isMobileViewport();
-    const exitLeft = mobile ? '-35vw' : '-55vw';
-    scrollTl.fromTo(pLogo, { x: '0vw', opacity: 1 }, { x: exitLeft, opacity: 0, duration: 0.7, ease: 'none' }, 0.3);
-    scrollTl.fromTo(pNameRest, { x: '0vw', opacity: 1 }, { x: exitLeft, opacity: 0, duration: 0.7, ease: 'none' }, 0.3);
-    scrollTl.set(nameLayer, { autoAlpha: 0 }, 0.98);
-
-    if (phraseChars.length) {
-      scrollTl.to(phraseChars, {
-        opacity: 1,
-        ...(isMobile ? {} : { filter: 'blur(0px)' }),
-        duration: 0.06,
-        ease: 'none',
-        stagger: { each: 0.007, from: 'start' },
-      }, 0.62);
-    }
-
-    ScrollTrigger.create({
-      trigger: '#scroll-wrap',
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: 0.5,
-      animation: scrollTl,
-      onUpdate: (self) => {
-        const p = self.progress;
-        if (keepIntroNameAnchored && p > 0.001) {
-          stopIntroNameAnchor();
-        }
-        if (p < REVEAL_PHASE_START) {
-          drawFrameAtProgress(0);
-          return;
-        }
-        const phase2 = Math.min(1, Math.max(0, (p - REVEAL_PHASE_START) / REVEAL_PHASE_DURATION));
-        drawFrameAtProgress(phase2 * FRAME_PROGRESS_AT_EXIT_START);
-      },
-    });
   }
 
   
@@ -696,31 +492,20 @@ function setupAboutSection() {
   function initPhotoScroll() {
     gsap.set(photo, { opacity: 0, x: 48, filter: 'blur(20px)' });
 
-    gsap.to(photo, {
-      opacity: 1,
-      x: 0,
-      filter: 'blur(0px)',
-      ease: 'power2.out',
+    gsap.timeline({
       scrollTrigger: {
-        trigger: '#site-header-transition',
-        start: 'bottom 75%',
-        end: 'bottom 40%',
-        scrub: 0.55,
-      },
-    });
-
-    gsap.to(photo, {
-      opacity: 0,
-      x: 24,
-      filter: 'blur(16px)',
-      ease: 'power2.in',
-      scrollTrigger: {
-        trigger: '#about',
-        start: 'bottom 110%',
+        trigger: '#about-body',
+        start: 'top 88%',
         end: 'bottom top',
         scrub: 0.55,
       },
-    });
+    })
+      .fromTo(photo,
+        { opacity: 0, x: 48, filter: 'blur(20px)' },
+        { opacity: 1, x: 0, filter: 'blur(0px)', ease: 'none', duration: 0.28 },
+      )
+      .to(photo, { opacity: 1, x: 0, filter: 'blur(0px)', ease: 'none', duration: 0.44 })
+      .to(photo, { opacity: 0, x: 24, filter: 'blur(16px)', ease: 'none', duration: 0.28 });
   }
   if (photo.decode) {
     photo.decode().then(initPhotoScroll).catch(initPhotoScroll);

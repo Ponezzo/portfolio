@@ -71,6 +71,8 @@ function applySections(sections, home) {
       ...(logo != null ? { logo } : {}),
       ...(firstName != null ? { firstName } : {}),
     };
+  } else if (content.preloader) {
+    delete content.preloader;
   }
 
   if (sections.Hero) {
@@ -85,7 +87,11 @@ function applySections(sections, home) {
   }
 
   if (sections.About) {
-    const [textHtml, sub] = takeOneTabLines(sections.About);
+    const lines = takeOneTabLines(sections.About);
+    const [textHtml, ...facts] = lines;
+    const sub = facts.length
+      ? `<ul class="about-facts">${facts.map((line) => `<li>${line.replace(/^-\s*/, '')}</li>`).join('')}</ul>`
+      : undefined;
     content.about = {
       ...(content.about ?? {}),
       ...(textHtml != null ? { textHtml } : {}),

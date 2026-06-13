@@ -4,7 +4,7 @@ Taegeon Park personal portfolio — scroll-driven landing with motion-rich proje
 
 ## Deploy
 
-- **Live**: https://ponezzo.github.io/prism-portfolio/
+- **Live**: https://ponezzo.github.io/portfolio/
 - **Figma**: https://www.figma.com/design/izxX8YJ16HiW3JB4sQsClp
 
 ## Structure

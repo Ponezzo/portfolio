@@ -113,87 +113,6 @@ body {
 }
 
 
-.name-layer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100vh;
-  height: 100dvh;
-  z-index: 10005;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  overflow: visible;
-  color: #f0f0f0;
-}
-
-.preloader-content {
-  display: flex;
-  align-items: baseline;
-  position: relative;
-  transform-origin: center center;
-}
-
-.preloader-name-left {
-  position: relative;
-  display: flex;
-  align-items: baseline;
-  gap: 0;
-}
-
-#preloader-logo {
-  position: relative;
-  font-weight: 300;
-  z-index: 2;
-  flex-shrink: 0;
-  font-family: 'Breton', sans-serif;
-  font-size: clamp(1.5rem, 10vw, 12rem);
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  color: #f0f0f0;
-}
-
-#preloader-name-rest {
-  font-family: 'Breton', sans-serif;
-  font-size: clamp(1.5rem, 10vw, 12rem);
-  font-weight: 300;
-  line-height: 1.2;
-  letter-spacing: -0.08em;
-  color: #f0f0f0;
-  white-space: nowrap;
-  position: relative;
-  flex-shrink: 0;
-}
-
-#preloader-logo .char,
-#preloader-name-rest .char {
-  overflow: visible;
-}
-
-/* Settled = hero line name */
-.name-layer--settled {
-  align-items: flex-end;
-  justify-content: flex-start;
-  padding: 0 3rem var(--hero-name-bottom);
-  box-sizing: border-box;
-}
-
-.name-layer--settled .preloader-content {
-  width: 100%;
-  box-sizing: border-box;
-  justify-content: flex-start;
-  transform: none !important;
-}
-
-.name-layer--settled #preloader-logo,
-.name-layer--settled #preloader-name-rest {
-  font-size: clamp(1.4rem, 9vw, 11rem);
-  mix-blend-mode: difference;
-}
-
-
 .transition-panel {
   position: fixed;
   top: 0;
@@ -591,10 +510,10 @@ a.chr-hover {
   position: relative;
   z-index: 20;
   width: 66.6%;
-  font-family: 'Breton', sans-serif;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   font-size: clamp(1.8rem, 3.6vw, 3.4rem);
   line-height: 1.45;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   color: #f0f0f0;
 }
 
@@ -626,11 +545,30 @@ a.chr-hover {
   width: 28%;
   margin-top: 12vh;
   margin-left: 20%;
-  font-family: 'Breton', sans-serif;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   font-size: clamp(0.9rem, 1.8vw, 1.7rem);
-  line-height: 1.6;
-  letter-spacing: -0.005em;
-  color: #f0f0f0;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+  color: rgba(240, 240, 240, 0.88);
+}
+
+.about-sub .about-facts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about-sub .about-facts li {
+  position: relative;
+  padding-left: 1.1em;
+  margin-bottom: 0.65em;
+}
+
+.about-sub .about-facts li::before {
+  content: '–';
+  position: absolute;
+  left: 0;
+  color: rgba(240, 240, 240, 0.55);
 }
 
 .about-btn {
@@ -1489,11 +1427,6 @@ a.chr-hover {
 
   :root {
     --hero-footer-offset: 1.5rem;
-  }
-
-  .name-layer--settled {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
   }
 
   .hero-tagline {

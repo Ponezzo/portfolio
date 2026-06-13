@@ -13,18 +13,9 @@
     if (el && text != null) el.textContent = text;
   }
 
-  function applyPreloader(c) {
-    setText('preloader-logo', c.logo);
-    setText('preloader-name-rest', c.firstName);
-  }
-
-  function applyHero(hero) {
-    setHtml('hero-tagline', hero.taglineHtml);
-  }
-
   function applyAbout(about) {
     setHtml('about-text', about.textHtml);
-    setText('about-sub', about.sub);
+    setHtml('about-sub', about.sub);
     const photo = document.querySelector('.about-photo');
     if (photo) {
       photo.src = about.photoSrc;
@@ -67,13 +58,6 @@
   }
 
   function applyFooter(footer) {
-    document.querySelectorAll('.footer-mail').forEach((mail) => {
-      mail.setAttribute('data-chr-footer', footer.email);
-      if (mail.tagName === 'A') mail.href = `mailto:${footer.email}`;
-    });
-    document.querySelectorAll('.footer-date').forEach((date) => {
-      date.setAttribute('data-chr-footer', footer.copyright);
-    });
     document.querySelectorAll('.footer-name-first').forEach((first) => {
       first.innerHTML = `<span class="first-letter">${footer.nameFirst.charAt(0)}</span>${footer.nameFirst.slice(1)}`;
     });
@@ -96,8 +80,6 @@
       return;
     }
     const c = home.content ?? home;
-    applyPreloader(c.preloader ?? home.preloader);
-    applyHero(c.hero ?? home.hero);
     applyAbout(c.about ?? home.about);
     applyProjects(home.projects);
     applySkills(c.skills ?? home.skills);
