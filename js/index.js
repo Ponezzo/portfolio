@@ -754,19 +754,22 @@ function setupProjectsSection() {
     hidePreviewPanel();
   }
 
+  function isInSkillsSection() {
+    const skills = document.getElementById('skills');
+    if (!skills) return _skillsInView;
+    const rect = skills.getBoundingClientRect();
+    return rect.top < window.innerHeight;
+  }
+
   function updateLineReady(progress) {
     const ready = progress >= LINE_FIRST_PROJECT_PROGRESS;
     if (ready === _lineReady) return;
     _lineReady = ready;
-    if (!_lineReady) {
-      clearActiveProject();
-      return;
-    }
-    if (_projectsInView) onProjectsScroll();
+    if (_lineReady && _projectsInView && !isInSkillsSection()) onProjectsScroll();
   }
 
   function showPreviewPanel() {
-    if (!_projectsInView || _skillsInView) return;
+    if (!_projectsInView || isInSkillsSection()) return;
     preview.classList.add('visible');
     gsap.to(preview, { opacity: 1, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
     gsap.to(card, { opacity: 1, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
@@ -785,7 +788,7 @@ function setupProjectsSection() {
   }
 
   function syncPreviewVisibility() {
-    if (_projectsInView && _lineReady && !_skillsInView && currentIdx >= 0) {
+    if (_projectsInView && !isInSkillsSection() && currentIdx >= 0) {
       showPreviewPanel();
     } else {
       forceHidePreview();
@@ -828,7 +831,7 @@ function setupProjectsSection() {
 
   ScrollTrigger.create({
     trigger: '#skills',
-    start: 'top 52%',
+    start: 'top bottom',
     end: 'bottom top',
     onEnter: () => {
       _skillsInView = true;
@@ -840,7 +843,7 @@ function setupProjectsSection() {
     },
     onLeaveBack: () => {
       _skillsInView = false;
-      if (_projectsInView && _lineReady) onProjectsScroll();
+      if (_projectsInView) onProjectsScroll();
     },
   });
 
@@ -869,8 +872,11 @@ function setupProjectsSection() {
   });
 
   function onProjectsScroll() {
-    if (!_lineReady) return;
-    if (_skillsInView || !_projectsInView) {
+    if (isInSkillsSection()) {
+      forceHidePreview();
+      return;
+    }
+    if (!_projectsInView) {
       forceHidePreview();
       return;
     }
