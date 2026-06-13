@@ -7,6 +7,7 @@
     "apply:home": "node scripts/apply-home.mjs",
     "apply:all": "npm run apply:home && npm run apply:tokens",
     "figma:merge": "node scripts/merge-figma-export.mjs",
+    "figma:merge:text": "node scripts/merge-figma-export.mjs --text-only",
     "dev": "npx serve . -p 4173",
     "build": "npm run apply:all"
   },

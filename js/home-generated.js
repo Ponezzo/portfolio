@@ -4,7 +4,7 @@ window.__HOME__ = {
     "version": 1,
     "figmaFileKey": "izxX8YJ16HiW3JB4sQsClp",
     "figmaPage": "🏠 Home (Editable)",
-    "lastSyncedFromFigma": null
+    "lastSyncedFromFigma": "2026-06-13T13:18:18.789Z"
   },
   "colors": {
     "prismCyan": "#00f0ff",
@@ -61,7 +61,7 @@ window.__HOME__ = {
       "phrase": "Basically, I build product experiences."
     },
     "about": {
-      "textHtml": "기능 개수가 아니라, <span class=\"other-accent\">사용자가 체감하는 가치</span>로<br>제품을 판단하는 PM입니다.",
+      "textHtml": "기능 개수가 아니라, 사용자가 체감하는 가치로<br>제품을 판단하는 PM입니다.",
       "sub": "삼성 스마트팩토리 3D 대시보드에서 AMR 위치 탐색 시간 40%·병목 40% 감소를 주도했습니다. SSAFY에서 FLIP, WakWak, Dingading을 기획·PM했고, Python과 SQLD·ADsP 자격을 보유하고 있습니다.",
       "version": "V3.0",
       "photoSrc": "assets/images/profile/taegeon.jpg",

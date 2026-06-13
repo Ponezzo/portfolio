@@ -14,10 +14,12 @@ const mapPath = path.join(root, 'design/figma-map.json');
 const figmaMap = JSON.parse(fs.readFileSync(mapPath, 'utf8'));
 const frameW = figmaMap.meta.frameWidth || 1440;
 
+const textOnly = process.argv.includes('--text-only');
+
 function readExportArg() {
-  const arg = process.argv[2];
+  const arg = process.argv.slice(2).find((a) => !a.startsWith('--'));
   if (!arg) {
-    console.error('Usage: node scripts/merge-figma-export.mjs <figma-export.json>');
+    console.error('Usage: node scripts/merge-figma-export.mjs [--text-only] <figma-export.json>');
     process.exit(1);
   }
   return JSON.parse(fs.readFileSync(path.resolve(arg), 'utf8'));
@@ -66,7 +68,7 @@ if (exportData.content) {
   }
 }
 
-if (exportData.layout && exportData.master) {
+if (!textOnly && exportData.layout && exportData.master) {
   const master = exportData.master;
   const prism = exportData.layout['layout/hero.prismVideo'];
   if (prism) home.layout.hero.prismVideo = layoutFromFrame(prism, master) ?? home.layout.hero.prismVideo;
@@ -74,11 +76,11 @@ if (exportData.layout && exportData.master) {
   if (tagline) home.layout.hero.tagline = layoutTagline(tagline, master) ?? home.layout.hero.tagline;
 }
 
-if (exportData.colors) {
+if (!textOnly && exportData.colors) {
   home.colors = { ...home.colors, ...exportData.colors };
 }
 
-if (exportData.skillGroups) {
+if (!textOnly && exportData.skillGroups) {
   home.content.skills.groups = exportData.skillGroups;
 }
 
@@ -93,4 +95,4 @@ if (exportData.projects) {
 
 home.meta.lastSyncedFromFigma = new Date().toISOString();
 fs.writeFileSync(homePath, JSON.stringify(home, null, 2) + '\n');
-console.log('Merged Figma export → content/home.json');
+console.log(`Merged Figma export → content/home.json${textOnly ? ' (text only)' : ''}`);

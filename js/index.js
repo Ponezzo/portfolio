@@ -163,18 +163,13 @@ let _introSettledXvw = 0;
 
 function placeIntroNameAtBottom() {
   layoutNames();
-  const totalW = getTotalWidth();
-  const offsetX = -(totalW / 2 - pLogo.offsetWidth / 2);
-  const offsetX_vw = (offsetX / getViewportSize().width) * 100;
-  _introSettledXvw = offsetX_vw;
-  const newH = pContent.offsetHeight;
-  const vh = getViewportSize().height;
+  nameLayer.classList.add('name-layer--settled');
+  pContent.classList.add('preloader-content--settled');
 
-  
+  const vh = getViewportSize().height;
   const bottomPad = isMobileViewport() ? Math.max(vh * 0.12, 80) : 80;
-  const targetBottom = vh - bottomPad;
-  const offsetY = targetBottom - newH / 2 - vh / 2;
-  gsap.set(pContent, { x: `${offsetX_vw}vw`, y: offsetY, transformOrigin: '50% 50%' });
+  gsap.set(pContent, { x: 0, y: 0, clearProps: 'transform' });
+  nameLayer.style.paddingBottom = `${bottomPad}px`;
 }
 
 function refreshIntroNameAnchor() {
