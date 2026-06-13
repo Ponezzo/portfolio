@@ -136,8 +136,8 @@ function setupSiteHeader() {
     footer: '#site-header',
     asciiLeftId: 'header-ascii-left',
     asciiRightId: 'header-ascii-right',
-    enableParallax: true,
-    landingFooter: true,
+    staticLanding: true,
+    holdRatio: 0.88,
     readyClass: 'site-header--ready',
   });
 }
@@ -772,8 +772,14 @@ function setupProjectsSection() {
 
   function hidePreviewPanel() {
     preview.classList.remove('visible');
-    gsap.to(preview, { opacity: 0, duration: 0.18, ease: 'power2.in', overwrite: 'auto' });
-    gsap.to(card, { opacity: 0, duration: 0.18, ease: 'power2.in', overwrite: 'auto' });
+    gsap.to(preview, { opacity: 0, duration: 0.32, ease: 'power2.inOut', overwrite: 'auto' });
+    gsap.to(card, { opacity: 0, duration: 0.32, ease: 'power2.inOut', overwrite: 'auto' });
+  }
+
+  function forceHidePreview() {
+    preview.classList.remove('visible');
+    gsap.set(preview, { opacity: 0 });
+    gsap.set(card, { opacity: 0 });
   }
 
   function restorePreviewInProjects() {
@@ -794,26 +800,52 @@ function setupProjectsSection() {
 
   
   const projectsEl = document.getElementById('projects');
+  const projectsExit = document.getElementById('projects-exit');
+
   ScrollTrigger.create({
     trigger: projectsEl,
     start: 'top 80%',
     end: 'bottom top',
     onEnter: () => {
       _projectsInView = true;
-      if (currentIdx >= 0) restorePreviewInProjects();
+      if (currentIdx >= 0 && _lineReady) restorePreviewInProjects();
     },
     onLeave: () => {
       _projectsInView = false;
-      hidePreviewPanel();
+      forceHidePreview();
     },
     onEnterBack: () => {
       _projectsInView = true;
-      if (currentIdx >= 0) restorePreviewInProjects();
+      if (currentIdx >= 0 && _lineReady) restorePreviewInProjects();
     },
     onLeaveBack: () => {
       _projectsInView = false;
-      hidePreviewPanel();
+      forceHidePreview();
     },
+  });
+
+  if (projectsExit) {
+    const exitFade = gsap.timeline({
+      scrollTrigger: {
+        trigger: projectsExit,
+        start: 'top bottom',
+        end: 'top 35%',
+        scrub: 0.4,
+        onEnter: () => preview.classList.remove('visible'),
+        onLeave: forceHidePreview,
+        onEnterBack: () => {
+          if (_projectsInView && currentIdx >= 0 && _lineReady) restorePreviewInProjects();
+        },
+      },
+    });
+    exitFade.to(preview, { opacity: 0, ease: 'power2.inOut' }, 0);
+    exitFade.to(card, { opacity: 0, ease: 'power2.inOut' }, 0);
+  }
+
+  ScrollTrigger.create({
+    trigger: '#skills',
+    start: 'top bottom',
+    onEnter: forceHidePreview,
   });
 
   

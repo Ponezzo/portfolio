@@ -175,6 +175,42 @@
     var transitionEl = document.querySelector(cfg.transition);
     if (!footerEl || !transitionEl) return;
 
+    if (cfg.staticLanding) {
+      loadAndRender('assets/images/footer/left.png', cfg.asciiLeftId, 80);
+      loadAndRender('assets/images/footer/right.png', cfg.asciiRightId, 80);
+
+      var readyClass = cfg.readyClass || 'site-header--ready';
+      var asciiLeftWrap = footerEl.querySelector('.footer-ascii.left');
+      var asciiRightWrap = footerEl.querySelector('.footer-ascii.right');
+      if (asciiLeftWrap) gsap.set(asciiLeftWrap, { xPercent: 0, opacity: 1 });
+      if (asciiRightWrap) gsap.set(asciiRightWrap, { xPercent: 0, opacity: 1 });
+
+      gsap.set(footerEl, { opacity: 1, visibility: 'visible' });
+      footerEl.classList.add(readyClass);
+
+      var holdRatio = cfg.holdRatio != null ? cfg.holdRatio : 0.88;
+      var fadeTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: cfg.transition,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 0.55,
+          onLeave: function () {
+            footerEl.style.visibility = 'hidden';
+            footerEl.classList.remove(readyClass);
+          },
+          onEnterBack: function () {
+            footerEl.style.visibility = 'visible';
+            footerEl.classList.add(readyClass);
+            gsap.set(footerEl, { opacity: 1 });
+          },
+        },
+      });
+      fadeTl.fromTo(footerEl, { opacity: 1 }, { opacity: 1, duration: holdRatio, ease: 'none' }, 0);
+      fadeTl.to(footerEl, { opacity: 0, duration: 1 - holdRatio, ease: 'power2.inOut' }, holdRatio);
+      return;
+    }
+
     var revealStart = cfg.landingFooter ? 'top top' : 'top bottom+=500';
     var revealEnd = cfg.landingFooter ? 'bottom top' : 'bottom bottom';
     var charStart = cfg.landingFooter ? 'top 65%' : 'center bottom+=500';
