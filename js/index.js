@@ -817,15 +817,29 @@ function setupProjectsSection() {
 
   
   const projectsEl = document.getElementById('projects');
+  const projectsExit = document.getElementById('projects-exit');
   ScrollTrigger.create({
     trigger: projectsEl,
     start: 'top 80%',
-    end: 'bottom 20%',
+    end: 'bottom top',
     onEnter: () => { preview.classList.add('visible'); _projectsVisible = true; },
     onLeave: () => { preview.classList.remove('visible'); _projectsVisible = false; },
     onEnterBack: () => { preview.classList.add('visible'); _projectsVisible = true; },
     onLeaveBack: () => { preview.classList.remove('visible'); _projectsVisible = false; },
   });
+
+  if (projectsExit) {
+    gsap.to(preview, {
+      opacity: 0,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: projectsExit,
+        start: 'top 75%',
+        end: 'bottom top',
+        scrub: 0.6,
+      },
+    });
+  }
 
   
   const itemQuickX = [...items].map(item =>
@@ -999,7 +1013,7 @@ function setupProjectsSection() {
     scrollTrigger: {
       trigger: '#projects',
       start: 'top 70%',
-      end: 'bottom 20%',
+      end: 'bottom top',
       scrub: 1,
     },
   });
@@ -1208,7 +1222,6 @@ function setupProjectsSection() {
       { id: 'about', name: 'About' },
       { id: 'projects', name: 'Projects' },
       { id: 'skills', name: 'Skills' },
-      { id: 'contact', name: 'Contact' },
     ];
 
     var scrollY0 = window.scrollY || window.pageYOffset;
@@ -1350,8 +1363,8 @@ function setupProjectsSection() {
         scrollTrigger: {
           trigger: '#skills',
           start: 'top top',
-          endTrigger: '#contact',
-          end: 'top center',
+          endTrigger: '#footer-transition',
+          end: 'top bottom',
           scrub: 0.5,
         }
       }
@@ -1804,56 +1817,60 @@ function setupProjectsSection() {
     var ctSocials = document.getElementById('contact-socials');
     var ctMail = document.getElementById('contact-mail');
 
-    var ftl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '#footer-transition',
-        start: 'top bottom+=550',
-        end: 'bottom bottom',
-        scrub: true,
-        onUpdate: function (self) {
-          var p = self.progress;
-          if (p > 0.2) {
-            contactBgEl.style.display = 'none';
-            contactSection.style.pointerEvents = 'none';
-          } else {
-            contactBgEl.style.display = 'block';
-            contactSection.style.pointerEvents = '';
+    if (contactPin && contactBlobWrap && contactBgEl && contactSection && ctTitle) {
+      var ftl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#footer-transition',
+          start: 'top bottom+=550',
+          end: 'bottom bottom',
+          scrub: true,
+          onUpdate: function (self) {
+            var p = self.progress;
+            if (p > 0.2) {
+              contactBgEl.style.display = 'none';
+              contactSection.style.pointerEvents = 'none';
+            } else {
+              contactBgEl.style.display = 'block';
+              contactSection.style.pointerEvents = '';
+            }
           }
         }
+      });
+
+      ftl.set(contactBlobWrap, {
+        height: '110vh', overflow: 'hidden',
+        borderRadius: '0 0 0px 0px'
+      }, 0);
+
+      ftl.to(contactBlobWrap, {
+        borderRadius: '0 0 50px 50px',
+        duration: 0.15, ease: 'power2.out'
+      }, 0);
+
+      ftl.to(contactBlobWrap, {
+        y: function () { return -(window.innerHeight * 1.8 + 400); },
+        immediateRender: false,
+        duration: 1.0, ease: 'none'
+      }, 0);
+
+      ftl.to(contactPin, {
+        y: '-40vh', pointerEvents: 'none', immediateRender: false,
+        duration: 1.0, ease: 'none'
+      }, 0);
+
+      if (ctSocials && ctMail) {
+        ftl.fromTo([ctSocials, ctMail],
+          { clipPath: 'inset(0 0 0% 0)' },
+          { clipPath: 'inset(0 0 100% 0)', duration: 0.1, ease: 'none' },
+          0
+        );
       }
-    });
-
-    ftl.set(contactBlobWrap, {
-      height: '110vh', overflow: 'hidden',
-      borderRadius: '0 0 0px 0px'
-    }, 0);
-
-    ftl.to(contactBlobWrap, {
-      borderRadius: '0 0 50px 50px',
-      duration: 0.15, ease: 'power2.out'
-    }, 0);
-
-    ftl.to(contactBlobWrap, {
-      y: function () { return -(window.innerHeight * 1.8 + 400); },
-      immediateRender: false,
-      duration: 1.0, ease: 'none'
-    }, 0);
-
-    ftl.to(contactPin, {
-      y: '-40vh', pointerEvents: 'none', immediateRender: false,
-      duration: 1.0, ease: 'none'
-    }, 0);
-
-    ftl.fromTo([ctSocials, ctMail],
-      { clipPath: 'inset(0 0 0% 0)' },
-      { clipPath: 'inset(0 0 100% 0)', duration: 0.1, ease: 'none' },
-      0
-    );
-    ftl.fromTo(ctTitle,
-      { clipPath: 'inset(0 0 0% 0)' },
-      { clipPath: 'inset(0 0 100% 0)', duration: 0.25, ease: 'power2.in' },
-      0
-    );
+      ftl.fromTo(ctTitle,
+        { clipPath: 'inset(0 0 0% 0)' },
+        { clipPath: 'inset(0 0 100% 0)', duration: 0.25, ease: 'power2.in' },
+        0
+      );
+    }
   })();
 
   
