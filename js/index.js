@@ -765,23 +765,17 @@ function setupProjectsSection() {
     if (_projectsInView) onProjectsScroll();
   }
 
-  function isInSkillsZone() {
-    const skills = document.getElementById('skills');
-    if (!skills) return _skillsInView;
-    const rect = skills.getBoundingClientRect();
-    return rect.top < window.innerHeight * 0.85 && rect.bottom > window.innerHeight * 0.15;
-  }
-
   function showPreviewPanel() {
-    if (!_projectsInView || _skillsInView || isInSkillsZone()) return;
+    if (!_projectsInView || _skillsInView) return;
     preview.classList.add('visible');
-    gsap.to(preview, { opacity: 1, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to(preview, { opacity: 1, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to(card, { opacity: 1, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
   }
 
   function hidePreviewPanel() {
     preview.classList.remove('visible');
-    gsap.to(preview, { opacity: 0, duration: 0.32, ease: 'power2.inOut', overwrite: 'auto' });
-    gsap.to(card, { opacity: 0, duration: 0.32, ease: 'power2.inOut', overwrite: 'auto' });
+    gsap.to(preview, { opacity: 0, duration: 0.12, ease: 'power2.in', overwrite: 'auto' });
+    gsap.to(card, { opacity: 0, duration: 0.12, ease: 'power2.in', overwrite: 'auto' });
   }
 
   function forceHidePreview() {
@@ -790,12 +784,12 @@ function setupProjectsSection() {
     gsap.set(card, { opacity: 0 });
   }
 
-  function restorePreviewInProjects() {
-    if (!_projectsInView || _skillsInView || isInSkillsZone()) return;
-    if (currentIdx < 0 || !_lineReady) return;
-    preview.classList.add('visible');
-    gsap.to(preview, { opacity: 1, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
-    gsap.to(card, { opacity: 1, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
+  function syncPreviewVisibility() {
+    if (_projectsInView && _lineReady && !_skillsInView && currentIdx >= 0) {
+      showPreviewPanel();
+    } else {
+      forceHidePreview();
+    }
   }
 
   
@@ -809,54 +803,45 @@ function setupProjectsSection() {
 
   
   const projectsEl = document.getElementById('projects');
-  const projectsExit = document.getElementById('projects-exit');
 
   ScrollTrigger.create({
     trigger: projectsEl,
     start: 'top 80%',
     end: 'bottom top',
-    onEnter: () => { _projectsInView = true; },
+    onEnter: () => {
+      _projectsInView = true;
+      onProjectsScroll();
+    },
     onLeave: () => {
       _projectsInView = false;
       forceHidePreview();
     },
-    onEnterBack: () => { _projectsInView = true; },
+    onEnterBack: () => {
+      _projectsInView = true;
+      onProjectsScroll();
+    },
     onLeaveBack: () => {
       _projectsInView = false;
       forceHidePreview();
     },
   });
 
-  if (projectsExit) {
-    const exitFade = gsap.timeline({
-      scrollTrigger: {
-        trigger: projectsExit,
-        start: 'top bottom',
-        end: 'top 35%',
-        scrub: 0.4,
-        onEnter: forceHidePreview,
-        onLeave: forceHidePreview,
-        onEnterBack: forceHidePreview,
-      },
-    });
-    exitFade.to(preview, { opacity: 0, ease: 'power2.inOut' }, 0);
-    exitFade.to(card, { opacity: 0, ease: 'power2.inOut' }, 0);
-  }
-
   ScrollTrigger.create({
     trigger: '#skills',
-    start: 'top bottom',
+    start: 'top 52%',
     end: 'bottom top',
     onEnter: () => {
       _skillsInView = true;
       forceHidePreview();
     },
-    onLeave: () => { _skillsInView = false; },
     onEnterBack: () => {
       _skillsInView = true;
       forceHidePreview();
     },
-    onLeaveBack: () => { _skillsInView = false; },
+    onLeaveBack: () => {
+      _skillsInView = false;
+      if (_projectsInView && _lineReady) onProjectsScroll();
+    },
   });
 
   
@@ -884,14 +869,15 @@ function setupProjectsSection() {
   });
 
   function onProjectsScroll() {
-    if (!_projectsInView || !_lineReady) return;
-    if (_skillsInView || isInSkillsZone()) {
+    if (!_lineReady) return;
+    if (_skillsInView || !_projectsInView) {
       forceHidePreview();
       return;
     }
     const cy = window.innerHeight / 2;
     const halfH = window.innerHeight / 2;
-    let closestIdx = -1, closestDist = Infinity;
+    let closestIdx = 0;
+    let closestDist = Infinity;
     items.forEach((item, i) => {
       const rect = item.getBoundingClientRect();
       const itemCy = rect.top + rect.height / 2;
@@ -899,38 +885,30 @@ function setupProjectsSection() {
       itemQuickX[i](Math.min(dist / halfH, 1) * 80);
       if (dist < closestDist) { closestDist = dist; closestIdx = i; }
     });
-    if (closestIdx >= 0 && closestDist < window.innerHeight * 0.45) {
-      activateProject(closestIdx);
-    }
+    activateProject(closestIdx);
+    syncPreviewVisibility();
   }
   lenis.on('scroll', onProjectsScroll);
   onProjectsScroll();
 
   function activateProject(i) {
-    if (!_lineReady) return;
-    if (i === currentIdx) return;
+    if (!_lineReady || !_projectsInView || _skillsInView) return;
+    if (i === currentIdx) {
+      syncPreviewVisibility();
+      return;
+    }
     if (currentIdx >= 0) items[currentIdx].classList.remove('active');
     items[i].classList.add('active');
-    showPreviewPanel();
 
     if (currentIdx === -1) {
       cover.src = items[i].dataset.img;
       if (dateEl) dateEl.textContent = items[i].dataset.date;
-      gsap.to(card, { opacity: 1, duration: 0.4, ease: 'power2.out', overwrite: 'auto' });
     } else {
-      gsap.to(card, {
-        opacity: 0,
-        duration: 0.18,
-        ease: 'power2.in',
-        overwrite: 'auto',
-        onComplete: () => {
-          cover.src = items[i].dataset.img;
-          if (dateEl) dateEl.textContent = items[i].dataset.date;
-          gsap.to(card, { opacity: 1, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
-        },
-      });
+      cover.src = items[i].dataset.img;
+      if (dateEl) dateEl.textContent = items[i].dataset.date;
     }
     currentIdx = i;
+    syncPreviewVisibility();
   }
 
   const projCursor = document.getElementById('proj-cursor');
@@ -1516,6 +1494,7 @@ function setupProjectsSection() {
     _cachedSelImg = detailSelected.querySelector('img');
     _galleryY = 0;
     gsap.set(detailThumbsInner, { y: 0 });
+    gsap.set(detailBack, { opacity: 1, visibility: 'visible' });
 
     
     var remPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
@@ -1541,7 +1520,6 @@ function setupProjectsSection() {
     
     tl.to(detailDesc, { opacity: 1, duration: 0.6, ease: 'power2.out' }, 1.2);
     tl.to(detailTags, { opacity: 1, duration: 0.5, ease: 'power2.out' }, 1.3);
-    tl.to(detailBack, { opacity: 1, duration: 0.5, ease: 'power2.out' }, 1.3);
 
     
     tl.fromTo(detailGalleryWrap, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power3.out' }, 1.2);
@@ -1569,7 +1547,8 @@ function setupProjectsSection() {
     var tl = gsap.timeline();
 
     
-    tl.to([detailDesc, detailTags, detailBack], { opacity: 0, duration: 0.3, ease: 'power2.in' }, 0);
+    tl.to([detailDesc, detailTags], { opacity: 0, duration: 0.3, ease: 'power2.in' }, 0);
+    tl.to(detailBack, { opacity: 0, visibility: 'hidden', duration: 0.2, ease: 'power2.in' }, 0);
     tl.to(detailGalleryWrap, { opacity: 0, duration: 0.4, ease: 'power2.in' }, 0);
 
     
@@ -1608,7 +1587,8 @@ function setupProjectsSection() {
     
     tl.add(function () {
       detailEl.classList.remove('active');
-      gsap.set([detailTitleWrap, detailDesc, detailTags, detailBack, detailGalleryWrap], { opacity: 0 });
+      gsap.set([detailTitleWrap, detailDesc, detailTags, detailGalleryWrap], { opacity: 0 });
+      gsap.set(detailBack, { opacity: 0, visibility: 'hidden' });
       gsap.set(flyingTitle, { opacity: 0 });
       _activeThumbIdx = -1;
       _thumbImgs = [];
