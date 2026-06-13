@@ -11,6 +11,9 @@
   --prism-gradient: linear-gradient(135deg, var(--prism-magenta) 0%, var(--prism-cyan) 45%, var(--prism-yellow) 100%);
   --prism-gradient-soft: linear-gradient(160deg, rgba(255,0,170,0.55), rgba(0,240,255,0.45), rgba(212,255,0,0.25));
   --prism-text-glow: 0 0 24px rgba(0,240,255,0.35), 0 0 48px rgba(255,0,170,0.2);
+  /* Intro hero name — tweak locally to match footer */
+  --intro-name-padding-x: 1.5vw;
+  --intro-name-padding-bottom: 80px;
 }
 
 .sr-only {
@@ -115,6 +118,24 @@ body {
   transform-origin: center center;
 }
 
+.preloader-name-left,
+.preloader-name-right {
+  display: flex;
+  align-items: baseline;
+}
+
+.preloader-name-left {
+  position: relative;
+}
+
+.preloader-name-right {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  white-space: nowrap;
+  display: none;
+}
+
 
 #preloader-logo {
   opacity: 0;
@@ -153,14 +174,6 @@ body {
   letter-spacing: -0.08em;
   color: #f0f0f0;
   white-space: nowrap;
-  position: absolute;
-  top: 0;
-}
-
-#preloader-logo .char,
-#preloader-baffait .char,
-#preloader-luke .char {
-  overflow: visible;
 }
 
 
@@ -169,38 +182,45 @@ body {
   font-size: clamp(2.2rem, 9vw, 9rem);
   line-height: 1.2;
   color: #f0f0f0;
-  position: absolute;
-  top: 0;
   opacity: 0;
 }
 
+#preloader-logo .char,
+#preloader-baffait .char,
+#preloader-luke .char {
+  overflow: visible;
+}
+
+/* Settled = hero bottom name (match .footer-name) */
 .name-layer--settled {
   align-items: flex-end;
-  justify-content: center;
+  justify-content: stretch;
+  padding-bottom: var(--intro-name-padding-bottom);
   box-sizing: border-box;
 }
 
-.preloader-content--settled {
+.name-layer--settled .preloader-content {
   width: 100%;
-  padding: 0 1.5vw;
+  padding: -50px var(--intro-name-padding-x);
   box-sizing: border-box;
   justify-content: flex-start;
+  transform: none !important;
 }
 
-.preloader-content--settled #preloader-logo,
-.preloader-content--settled #preloader-luke,
-.preloader-content--settled #preloader-baffait,
-.preloader-content--settled #preloader-dot {
-  position: static !important;
-  left: auto !important;
-  top: auto !important;
+.name-layer--settled .preloader-name-left,
+.name-layer--settled .preloader-name-right {
+  position: static;
+  left: auto;
+  top: auto;
 }
 
-.preloader-content--settled #preloader-baffait {
-  margin-left: auto;
+.name-layer--settled #preloader-luke {
+  position: static;
+  left: auto;
+  top: auto;
 }
 
-.preloader-content--settled #preloader-dot {
+.name-layer--settled #preloader-dot {
   color: var(--prism-hot);
 }
 
@@ -301,7 +321,7 @@ body {
   left: 3rem;
   right: 3rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: flex-end;
   mix-blend-mode: difference;
   clip-path: inset(0 0 100% 0);
@@ -594,11 +614,6 @@ a.chr-hover {
 .contact--minimal .contact-pin {
   justify-content: flex-end;
   padding-bottom: 18vh;
-}
-
-.proj-item.active {
-  background: linear-gradient(90deg, rgba(255, 0, 170, 0.08), rgba(0, 240, 255, 0.06));
-  text-shadow: var(--prism-text-glow);
 }
 
 

@@ -45,10 +45,14 @@
   
   <div class="name-layer" id="name-layer">
     <div class="preloader-content" id="preloader-content">
-      <div id="preloader-logo">T</div>
-      <span id="preloader-luke">aegeon</span>
-      <span id="preloader-baffait"> Park</span>
-      <span id="preloader-dot">.</span>
+      <div class="preloader-name-left" id="preloader-name-left">
+        <div id="preloader-logo">T</div>
+        <span id="preloader-luke">aegeon</span>
+      </div>
+      <div class="preloader-name-right" id="preloader-name-right">
+        <span id="preloader-baffait">Park</span>
+        <span id="preloader-dot">.</span>
+      </div>
     </div>
   </div>
 
@@ -64,26 +68,13 @@
     
     <section class="hero" id="hero">
       <h1 class="sr-only" data-i18n="index.h1">Taegeon Park — Creative Developer, étudiant en informatique à Vannes, spécialisé en développement web, animation et design interactif.</h1>
-      <div class="hero-canvas" id="hero-canvas"></div>
-
       <div class="hero-content">
         <div class="hero-tagline" id="hero-tagline" data-i18n="index.hero.tagline">
-          Créatif discret, <span class="other-accent">je donne vie</span> aux idées,<br>
-          entre mouvement, détail et douceur.
+          기본적으로 사용자를 우선으로 한 기획과 개발을 합니다.
         </div>
 
         <div class="hero-line" id="hero-line"></div>
         <div class="hero-bar" id="hero-bar">
-          <div class="hero-bar-left">
-            <span class="chr-hover" data-chr="🡺V3.0"></span>
-          </div>
-          <nav class="hero-bar-center" aria-label="Réseaux sociaux">
-            <a class="chr-hover" data-chr="Behance" href="https://www.behance.net/lukebaffait" target="_blank" rel="noopener noreferrer" aria-label="Behance"></a>
-            <span class="sep" aria-hidden="true">/</span>
-            <a class="chr-hover" data-chr="LinkedIn" href="https://www.linkedin.com/in/luke-baffait/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"></a>
-            <span class="sep" aria-hidden="true">/</span>
-            <a class="chr-hover" data-chr="GitHub" href="https://github.com/Ponezzo" target="_blank" rel="noopener noreferrer" aria-label="GitHub"></a>
-          </nav>
           <nav class="hero-bar-right" aria-label="Navigation principale">
             <a class="chr-hover" data-chr="Work" href="works/" data-page-link="work" aria-label="Work"></a>
             <a class="chr-hover" data-chr="Info" href="info/" data-page-link="info" aria-label="Info"></a>
@@ -103,19 +94,16 @@
   <section class="section-after" id="section-after">
     <div class="about" id="about">
       <div class="about-text" id="about-text" data-i18n="index.about.text">
-        기능 개수가 아니라, <span class="other-accent">사용자가 체감하는 가치</span>로
+        기능의 수가 아니라, <span class="other-accent">사용자가 체감하는 가치</span>로
         제품을 판단하는 PM입니다.
       </div>
       <div class="about-sub" id="about-sub" data-i18n="index.about.sub">
-        삼성 스마트팩토리 3D 대시보드에서 AMR 위치 탐색 시간 40%·병목 40% 감소를 주도했습니다.
-        SSAFY에서 FLIP, WakWak, Dingading을 기획·PM했고, Python과 SQLD·ADsP 자격을 보유하고 있습니다.
+        삼성생산기술연구소와 협업한 스마트팩토리 3D 대시보드에서 로딩 47% 개선과 AMR 위치 파악 40% 단축을 이끌었습니다.
+        WakWak·Dingading·FLIP을 기획·PM했습니다.
       </div>
       <div class="about-btn">
         <a class="chr-hover" data-chr="Info" href="info/" data-page-link="info" aria-label="En savoir plus sur moi"></a>
       </div>
-      <div class="about-version"><svg style="width: 1.25em; height: 1.25em; vertical-align: -0.25em;" viewBox="0 0 84 85" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-  <path d="M11 38H54L37 21H51L73 43L51 65H37L54 48H11Z"/>
-</svg>V3.0</div>
       <div class="about-photo-wrap" id="about-photo-wrap">
         <img class="about-photo" src="assets/images/profile/taegeon.jpg" alt="Taegeon Park" decoding="async" width="800"
           height="800">
@@ -157,7 +145,7 @@
       <div class="skills-left">
         <div class="skills-subtitle" data-i18n="index.skills.subtitle">Compétences</div>
         <div class="skills-text">
-          SSAFY PM · 삼성 생기원 연계 스마트팩토리 프로젝트 · AI·커뮤니티·모바일 서비스 기획 경험
+          본문
         </div>
         <div class="skills-separator"></div>
         <div class="skills-arrow" id="skills-arrow"><svg style="width: 1.25em; height: 1.25em; vertical-align: -0.25em;" viewBox="0 0 84 85" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -319,7 +307,6 @@
   <script defer src="js/home-generated.js"></script>
   <script defer src="js/home-bindings.js"></script>
   <script defer src="js/i18n.js"></script>
-  <script type="module" src="js/prism-renderer.mjs"></script>
   <script defer src="js/reveal-sequence.js"></script>
   <script defer src="js/vendor/gsap.min.js"></script>
   <script defer src="js/vendor/ScrollTrigger.min.js"></script>

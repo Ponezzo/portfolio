@@ -18,24 +18,19 @@
     setText('preloader-luke', c.firstName);
     setText('preloader-baffait', c.lastName);
     setText('preloader-dot', c.dot);
+    const nameRight = document.getElementById('preloader-name-right');
+    if (nameRight) {
+      nameRight.hidden = c.showLastName === false;
+    }
   }
 
   function applyHero(hero) {
     setHtml('hero-tagline', hero.taglineHtml);
-    const versionLeft = document.querySelector('.hero-bar-left [data-chr]');
-    if (versionLeft) versionLeft.setAttribute('data-chr', hero.version);
   }
 
   function applyAbout(about) {
     setHtml('about-text', about.textHtml);
     setText('about-sub', about.sub);
-    const version = document.querySelector('.about-version');
-    if (version) {
-      const svg = version.querySelector('svg');
-      version.textContent = '';
-      if (svg) version.appendChild(svg);
-      version.append(document.createTextNode(about.version));
-    }
     const photo = document.querySelector('.about-photo');
     if (photo) {
       photo.src = about.photoSrc;

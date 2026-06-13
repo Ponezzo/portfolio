@@ -57,23 +57,13 @@ if (!mustSkip) {
   }, { once: true });
 }
 
-let _shaderStarted = false;
-function startShader() {
-  if (_shaderStarted) return;
-  if (!window.PrismRenderer) {
-    window.addEventListener('prism-renderer-ready', startShader, { once: true });
-    return;
-  }
-  _shaderStarted = true;
-  PrismRenderer.init('hero-canvas').then(() => {
-    window.dispatchEvent(new Event('scroll'));
-  }).catch(err => console.error('PrismRenderer init failed:', err));
-}
 
 gsap.registerPlugin(ScrollTrigger);
 
 const introBg = document.getElementById('intro-bg');
 const pContent = document.getElementById('preloader-content');
+const pNameLeft = document.getElementById('preloader-name-left');
+const pNameRight = document.getElementById('preloader-name-right');
 const pLogo = document.getElementById('preloader-logo');
 const pLuke = document.getElementById('preloader-luke');
 const pBaffait = document.getElementById('preloader-baffait');
@@ -103,44 +93,41 @@ function splitIntoChars(el) {
 
 const logoChar = splitIntoChars(pLogo);
 const lukeChars = splitIntoChars(pLuke);
-const baffaitChars = splitIntoChars(pBaffait);
-const allChars = [...lukeChars, ...baffaitChars];
-const allRevealEls = [...logoChar, ...lukeChars, ...baffaitChars];
+const allRevealEls = [...logoChar, ...lukeChars];
 
+
+function getNameFontEl() {
+  return pLuke || pLogo;
+}
 
 function getCharGap() {
-  return parseFloat(getComputedStyle(pBaffait).fontSize) * 0.55;
+  return parseFloat(getComputedStyle(getNameFontEl()).fontSize) * 0.55;
 }
 
 function layoutNames() {
-  const fs = parseFloat(getComputedStyle(pBaffait).fontSize);
-  if (!fs) return;
-  const baselineOffset = -0.06; 
-
-  const lukeLeft = pLuke.offsetLeft;
-  const lukeWidth = pLuke.offsetWidth;
+  if (pContent.classList.contains('preloader-content--settled')) return;
+  const fs = parseFloat(getComputedStyle(getNameFontEl()).fontSize);
+  if (!fs || !pNameLeft || !pNameRight) return;
+  const baselineOffset = -0.06;
   const gapPx = fs * 0.55;
-
-  const baffaitLeftPx = lukeLeft + lukeWidth + gapPx;
-  pBaffait.style.left = (baffaitLeftPx / fs) + 'em';
-  pBaffait.style.top = baselineOffset + 'em';
-
-  const dotLeftPx = baffaitLeftPx + pBaffait.offsetWidth;
-  pDot.style.left = (dotLeftPx / fs) + 'em';
-  pDot.style.top = baselineOffset + 'em';
+  const leftW = pNameLeft.offsetWidth;
+  pNameRight.style.left = ((leftW + gapPx) / fs) + 'em';
+  pNameRight.style.top = baselineOffset + 'em';
 }
 layoutNames();
 
 gsap.set(pLogo, { opacity: 1 });
 gsap.set(pLuke, { opacity: 1 });
-gsap.set(pBaffait, { opacity: 1 });
 gsap.set(allRevealEls, { yPercent: 110 });
-gsap.set(pDot, { opacity: 0 });
 
 gsap.set([pContent, tPanelRed, tPanelDark], { willChange: 'transform' });
 
 function getTotalWidth() {
-  return pLogo.offsetWidth + pLuke.offsetWidth + getCharGap() + pBaffait.offsetWidth + pDot.offsetWidth;
+  if (!pNameLeft) return pLogo.offsetWidth;
+  if (!pNameRight || pNameRight.hidden || pNameRight.offsetParent === null) {
+    return pNameLeft.offsetWidth;
+  }
+  return pNameLeft.offsetWidth + getCharGap() + pNameRight.offsetWidth;
 }
 
 let keepIntroNameAnchored = false;
@@ -162,14 +149,18 @@ function isMobileViewport() {
 let _introSettledXvw = 0;
 
 function placeIntroNameAtBottom() {
-  layoutNames();
   nameLayer.classList.add('name-layer--settled');
   pContent.classList.add('preloader-content--settled');
-
+  [pNameLeft, pNameRight, pLogo, pLuke, pBaffait, pDot].forEach((el) => {
+    if (!el) return;
+    el.style.left = '';
+    el.style.top = '';
+    el.style.marginLeft = '';
+  });
   const vh = getViewportSize().height;
   const bottomPad = isMobileViewport() ? Math.max(vh * 0.12, 80) : 80;
-  gsap.set(pContent, { x: 0, y: 0, clearProps: 'transform' });
-  nameLayer.style.paddingBottom = `${bottomPad}px`;
+  document.documentElement.style.setProperty('--intro-name-padding-bottom', `${bottomPad}px`);
+  gsap.set(pContent, { x: 0, y: 0, scale: 1, clearProps: 'transform' });
 }
 
 function refreshIntroNameAnchor() {
@@ -209,16 +200,7 @@ master
   })
 
   .add(() => layoutNames())
-  .to(pDot, {
-    opacity: 1,
-    duration: 0.25,
-    ease: 'power2.out',
-  })
-
   .add(() => {
-    startShader();
-    
-    document.getElementById('hero-tagline')?.style.setProperty('will-change', 'opacity, clip-path');
     document.getElementById('hero-bar')?.style.setProperty('will-change', 'opacity, clip-path');
     document.getElementById('hero-line')?.style.setProperty('will-change', 'transform');
     
@@ -233,7 +215,7 @@ master
     const currentW = getTotalWidth();
     const viewportSize = getViewportSize();
     const targetW = viewportSize.width - pad * 2;
-    const scale = targetW / currentW;
+    const scale = (targetW / currentW) * 0.9;
 
     const visualCenterX = getTotalWidth() / 2;
     const visualCenterY = pContent.offsetHeight / 2;
@@ -257,7 +239,7 @@ master
       
       gsap.set(nameLayer, { mixBlendMode: 'difference' });
       const vwSize = (newFontSize / viewportSize.width) * 100;
-      [pLogo, pLuke, pBaffait, pDot].forEach(el => {
+      [pLogo, pLuke].forEach(el => {
         el.style.fontSize = `${vwSize}vw`;
       });
       void pContent.offsetWidth;
@@ -729,18 +711,21 @@ function setupAboutSection() {
   }
   const aboutSub = document.getElementById('about-sub');
   const aboutVersion = document.querySelector('.about-version');
-  const aboutIcon = aboutVersion.querySelector('svg');
-  if (aboutIcon) {
-    aboutIcon.classList.add('word');
-  }
   wrapWords(aboutText);
-  wrapWords(aboutVersion);
+  if (aboutVersion) {
+    const aboutIcon = aboutVersion.querySelector('svg');
+    if (aboutIcon) aboutIcon.classList.add('word');
+    wrapWords(aboutVersion);
+  }
+
+  const aboutWords = [...aboutText.querySelectorAll('.word')];
+  if (aboutVersion) aboutWords.push(...aboutVersion.querySelectorAll('.word'));
 
   if (isMobile) {
-    [...aboutText.querySelectorAll('.word'), ...aboutVersion.querySelectorAll('.word')].forEach(w => { w.style.filter = 'none'; });
+    aboutWords.forEach(w => { w.style.filter = 'none'; });
   }
 
-  [...aboutText.querySelectorAll('.word'), ...aboutVersion.querySelectorAll('.word')].forEach(word => {
+  aboutWords.forEach(word => {
     gsap.to(word, {
       opacity: 1,
       ...(isMobile ? {} : { filter: 'blur(0px)' }),

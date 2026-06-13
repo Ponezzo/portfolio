@@ -23,9 +23,9 @@
 
     'index.title': 'Luke Baffait, Creative Developer',
     'index.h1': 'Luke Baffait, Creative Developer, computer science student in Vannes, specialized in web development, animation and interactive design.',
-    'index.hero.tagline': 'Quiet creator, <span class="other-accent">bringing ideas to life</span>,<br>through motion, detail and softness.',
-    'index.about.text': 'As a<span class="other-accent"> creative developer</span>, I craft tailor-made web experiences, blending technical precision and <span class="other-accent">emotion</span>.',
-    'index.about.sub': "My name is Luke. A passionate creator and computer science student in Vannes, I build memorable digital experiences, always seeking the symbiosis between art and information.",
+    'index.hero.tagline': 'Basically, I plan and build with the user first.',
+    'index.about.text': 'I judge products by the value users feel, <span class="other-accent">not by feature count</span>.',
+    'index.about.sub': 'On a Samsung smart factory 3D dashboard, I cut loading time by 47% and AMR location lookup by 40%. I planned and PM-ed WakWak, Dingading, and FLIP.',
     'index.cg.phrase': "Each project is a chance to <span class=\"other-accent\">learn</span>, <span class=\"other-accent\">experiment</span> and push my limits.",
     'index.skills.subtitle': 'Skills',
     'index.skills.text': 'Computer Science student in Vannes, specialized in cybersecurity, passionate about web development and design.',
