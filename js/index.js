@@ -73,6 +73,16 @@ const tPanelDark = document.getElementById('t-panel-dark');
 const hero = document.getElementById('hero');
 const nameLayer = document.getElementById('name-layer');
 
+function syncPreloaderContent() {
+  const preloader = window.__HOME__?.content?.preloader;
+  if (!preloader) return;
+  if (pLogo) pLogo.textContent = preloader.logo ?? 'T';
+  if (pLuke) pLuke.textContent = preloader.firstName ?? '';
+  if (pBaffait) pBaffait.textContent = preloader.lastName ?? '';
+  if (pDot) pDot.textContent = preloader.dot ?? '';
+  if (pNameRight) pNameRight.hidden = preloader.showLastName === false;
+}
+
 function splitIntoChars(el) {
   const raw = el.textContent;
   el.innerHTML = '';
@@ -91,9 +101,17 @@ function splitIntoChars(el) {
   return inners;
 }
 
+syncPreloaderContent();
+
 const logoChar = splitIntoChars(pLogo);
 const lukeChars = splitIntoChars(pLuke);
 const allRevealEls = [...logoChar, ...lukeChars];
+
+function ensureIntroNameVisible() {
+  gsap.set(nameLayer, { autoAlpha: 1, visibility: 'visible' });
+  gsap.set([pContent, pLogo, pLuke], { opacity: 1, visibility: 'visible' });
+  gsap.set(allRevealEls, { opacity: 1, visibility: 'visible' });
+}
 
 
 function getNameFontEl() {
@@ -116,8 +134,7 @@ function layoutNames() {
 }
 layoutNames();
 
-gsap.set(pLogo, { opacity: 1 });
-gsap.set(pLuke, { opacity: 1 });
+ensureIntroNameVisible();
 gsap.set(allRevealEls, { yPercent: 110 });
 
 gsap.set([pContent, tPanelRed, tPanelDark], { willChange: 'transform' });
@@ -235,15 +252,16 @@ master
     const applyFinalState = () => {
       pContent.style.visibility = 'hidden';
       gsap.set(pContent, { scale: 1, x: 0, y: 0 });
-      
-      
-      gsap.set(nameLayer, { mixBlendMode: 'difference' });
+
+      gsap.set(nameLayer, { mixBlendMode: 'difference', autoAlpha: 1 });
       const vwSize = (newFontSize / viewportSize.width) * 100;
+      _introSettledXvw = vwSize * 0.5;
       [pLogo, pLuke].forEach(el => {
         el.style.fontSize = `${vwSize}vw`;
       });
       void pContent.offsetWidth;
       placeIntroNameAtBottom();
+      ensureIntroNameVisible();
       keepIntroNameAnchored = true;
       pContent.style.visibility = 'visible';
     };
@@ -785,8 +803,25 @@ function setupProjectsSection() {
   const cover = document.getElementById('proj-cover');
   const dateEl = document.getElementById('proj-date');
   const preview = document.getElementById('proj-preview');
+  if (!items.length || !card || !cover || !preview) return;
+
   let currentIdx = -1;
+  let _projectsVisible = false;
   gsap.set(card, { opacity: 0 });
+
+  function showPreviewPanel() {
+    preview.classList.add('visible');
+    gsap.set(preview, { clearProps: 'opacity' });
+    _projectsVisible = true;
+  }
+
+  function hidePreviewPanel() {
+    preview.classList.remove('visible');
+    _projectsVisible = false;
+    gsap.to(card, { opacity: 0, duration: 0.25, ease: 'power2.in' });
+    currentIdx = -1;
+    items.forEach(item => item.classList.remove('active'));
+  }
 
   
   const _coverCache = [];
@@ -804,10 +839,10 @@ function setupProjectsSection() {
     trigger: projectsEl,
     start: 'top 80%',
     end: 'bottom top',
-    onEnter: () => { preview.classList.add('visible'); _projectsVisible = true; },
-    onLeave: () => { preview.classList.remove('visible'); _projectsVisible = false; },
-    onEnterBack: () => { preview.classList.add('visible'); _projectsVisible = true; },
-    onLeaveBack: () => { preview.classList.remove('visible'); _projectsVisible = false; },
+    onEnter: showPreviewPanel,
+    onLeave: hidePreviewPanel,
+    onEnterBack: showPreviewPanel,
+    onLeaveBack: hidePreviewPanel,
   });
 
   if (projectsExit) {
@@ -827,7 +862,6 @@ function setupProjectsSection() {
   const itemQuickX = [...items].map(item =>
     gsap.quickTo(item, 'x', { duration: 0.6, ease: 'power2.out' })
   );
-  let _projectsVisible = false;
 
   
   items.forEach((item, i) => {
@@ -883,11 +917,12 @@ function setupProjectsSection() {
     if (i === currentIdx) return;
     if (currentIdx >= 0) items[currentIdx].classList.remove('active');
     items[i].classList.add('active');
+    showPreviewPanel();
 
     if (currentIdx === -1) {
       
       cover.src = items[i].dataset.img;
-      dateEl.textContent = items[i].dataset.date;
+      if (dateEl) dateEl.textContent = items[i].dataset.date;
       gsap.to(card, { opacity: 1, duration: 0.4, ease: 'power2.out' });
     } else {
       

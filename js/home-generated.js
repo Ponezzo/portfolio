@@ -76,25 +76,34 @@ window.__HOME__ = {
           ]
         },
         {
-          "id": "planning",
-          "title": "기획",
+          "id": "animation",
+          "title": "Animation & 3D",
           "items": [
-            "UX Planning",
-            "Figma Prototyping",
-            "User Interview",
-            "MVP Definition",
-            "Wireframing",
-            "Jira Backlog"
+            "GSAP",
+            "Three.js"
           ]
         },
         {
-          "id": "pm",
-          "title": "PM",
+          "id": "devops",
+          "title": "DevOps & Outils",
           "items": [
+            "Git",
+            "GitHub",
+            "Figma",
+            "Notion",
+            "Jira"
+          ]
+        },
+        {
+          "id": "product",
+          "title": "Product & Planning",
+          "items": [
+            "UX Planning",
             "Product Strategy",
             "Agile / Scrum",
-            "Priority Setting",
-            "Stakeholder Alignment",
+            "MVP Definition",
+            "User Interview",
+            "Figma Prototyping",
             "SQLD",
             "ADsP"
           ]
