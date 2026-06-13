@@ -324,20 +324,30 @@
       end: 'bottom bottom',
       onEnter: function () {
         footerEl.style.visibility = 'visible';
+        if (cfg.landingFooter) footerEl.classList.add('about-footer--ready');
         blockVisible = true;
         parallaxLoop();
       },
       onLeave: function () {
         blockVisible = false;
-        if (cfg.hideOnLeave !== false) footerEl.style.visibility = 'hidden';
+        if (cfg.hideOnLeave !== false) {
+          footerEl.style.visibility = 'hidden';
+          if (cfg.landingFooter) footerEl.classList.remove('about-footer--ready');
+        }
       },
       onEnterBack: function () {
         footerEl.style.visibility = 'visible';
+        if (cfg.landingFooter) footerEl.classList.add('about-footer--ready');
         blockVisible = true;
         parallaxLoop();
       },
       onLeaveBack: function () {
         blockVisible = false;
+        if (cfg.landingFooter) {
+          footerEl.style.visibility = 'visible';
+          footerEl.classList.add('about-footer--ready');
+          return;
+        }
         footerEl.style.visibility = 'hidden';
       },
     });

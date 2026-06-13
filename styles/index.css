@@ -543,9 +543,20 @@ a.chr-hover {
 
 .about-footer-transition {
   position: relative;
-  height: 80vh;
+  height: 100vh;
+  height: 100dvh;
   z-index: 6;
   pointer-events: none;
+}
+
+.scroll-wrap--landing {
+  height: 0;
+  min-height: 0;
+  overflow: visible;
+}
+
+.hero--landing {
+  display: none;
 }
 
 .about-footer {
@@ -558,6 +569,10 @@ a.chr-hover {
   visibility: hidden;
   background: #0a0a0a;
   pointer-events: none;
+}
+
+.about-footer.about-footer--ready {
+  visibility: visible;
 }
 
 .about-body {

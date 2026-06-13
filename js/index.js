@@ -118,8 +118,16 @@ function getTotalWidth() {
 }
 
 ensureIntroNameVisible();
-gsap.set(allRevealEls, { yPercent: 0 });
+gsap.set(nameLayer, { autoAlpha: 0, display: 'none' });
 gsap.set([pContent, tPanelRed, tPanelDark], { willChange: 'transform' });
+
+function showAboutFooterLanding() {
+  const aboutFooter = document.getElementById('about-footer');
+  if (aboutFooter) {
+    aboutFooter.style.visibility = 'visible';
+    aboutFooter.classList.add('about-footer--ready');
+  }
+}
 
 let keepIntroNameAnchored = false;
 let nameAnchorRaf = 0;
@@ -197,69 +205,20 @@ function stopIntroNameAnchor() {
 
 window.addEventListener('resize', refreshIntroNameAnchor);
 
-const master = gsap.timeline({ delay: 0.2 });
+const master = gsap.timeline({ delay: 0.15 });
 
 master
-  
-  .add(() => {
-    gsap.set(pContent, { x: -(getTotalWidth() / 2 - (pLogo?.offsetWidth || 0) / 2) });
-    gsap.set(pLuke, { x: 0 });
-  })
-
-  .add(() => {
-    document.getElementById('hero-tagline')?.style.setProperty('will-change', 'opacity, clip-path');
-    document.getElementById('hero-line')?.style.setProperty('will-change', 'transform');
-  })
-  .to({}, { duration: 0.3 })
-
-  .add(() => {
-    if (shouldSkipLongIntro || prefersReducedMotion) {
-      applyIntroFinalState();
-      return;
-    }
-
-    const mobile = isMobileViewport();
-    const pad = mobile ? 20 : 48;
-    const currentW = getTotalWidth();
-    const viewportSize = getViewportSize();
-    const targetW = viewportSize.width - pad * 2;
-    const scale = targetW / currentW;
-    const visualCenterX = getTotalWidth() / 2;
-    const visualCenterY = pContent.offsetHeight / 2;
-    gsap.set(pContent, { transformOrigin: `${visualCenterX}px ${visualCenterY}px` });
-
-    const vh = viewportSize.height;
-    const bottomPad = mobile ? Math.max(vh * 0.18, 110) : 80;
-    const targetBottom = vh - bottomPad;
-    const contentRect = pContent.getBoundingClientRect();
-    const curVisualCenterY = contentRect.top + visualCenterY;
-    const targetVisualCenterY = targetBottom - (pContent.offsetHeight * scale / 2);
-    const deltaY = targetVisualCenterY - curVisualCenterY;
-
-    gsap.to(pContent, {
-      scale,
-      y: `+=${deltaY}`,
-      duration: 0.75,
-      ease: 'power3.inOut',
-      onComplete: () => requestAnimationFrame(applyIntroFinalState),
-    });
-  })
   .to(tPanelDark, {
     y: '0%',
     duration: 0.45,
     ease: 'power3.inOut',
-  }, '<+=0.05')
+  })
   .to(tPanelRed, {
     y: '0%',
     duration: 0.45,
     ease: 'power3.inOut',
   }, '-=0.3')
   .set(introBg, { display: 'none' })
-  .set(hero, { opacity: 1 })
-
-  
-
-  
   .to(tPanelRed, {
     y: '-100%',
     duration: 0.55,
@@ -270,23 +229,7 @@ master
     duration: 0.55,
     ease: 'power3.inOut',
   }, '-=0.4')
-
-  
-  .to('#hero-tagline', {
-    opacity: 1,
-    clipPath: 'inset(0 0 0% 0)',
-    duration: 1.1,
-    ease: 'power3.inOut',
-  }, '-=0.2')
-  .fromTo('#hero-line',
-    { opacity: 1, scaleX: 0 },
-    { scaleX: 1, duration: 1.0, ease: 'power3.inOut' },
-    '<')
-  .add(() => {
-    
-    document.querySelectorAll('.ch-top').forEach(el => { el.style.willChange = 'clip-path'; });
-    chrHoverTl.play();
-  }, '-=0.8');
+  .add(showAboutFooterLanding);
 
 document.querySelectorAll('.chr-hover[data-chr]').forEach(el => {
   const text = el.dataset.chr;
@@ -356,6 +299,7 @@ master.add(() => {
   requestAnimationFrame(() => {
     if (revealSetupStarted) return;
     revealSetupStarted = true;
+    showAboutFooterLanding();
     setupScrollReveal().catch(err => {
       console.error('setupScrollReveal failed:', err);
     });
@@ -363,7 +307,7 @@ master.add(() => {
 });
 
 if (mustSkip) {
-  applyIntroFinalState();
+  showAboutFooterLanding();
   master.progress(1);
   master.pause();
   if (!shouldSkipLongIntro) {
@@ -531,51 +475,8 @@ async function setupScrollReveal() {
   }
 
   const introSettledY = Number(gsap.getProperty(pContent, 'y')) || 0;
-  
   const introXvw = `${_introSettledXvw}vw`;
-
-  const scrollTl = gsap.timeline({ paused: true });
-
-  scrollTl.fromTo(pContent, { x: introXvw, y: introSettledY }, { x: introXvw, y: 0, duration: 0.3, ease: 'none' }, 0);
-  scrollTl.fromTo('#hero-tagline', { opacity: 1 }, { opacity: 0, duration: 0.15, ease: 'none' }, 0);
-  scrollTl.fromTo('#hero-line', { opacity: 1 }, { opacity: 0, duration: 0.15, ease: 'none' }, 0);
-
-  if (revealWrap) {
-    scrollTl.fromTo(revealWrap, { opacity: 0 }, { opacity: 1, duration: 0.01 }, 0.3);
-    if (!textOnlyReveal && revealSeq.length) {
-      scrollTl.fromTo(revealSeq, { scale: 0 }, {
-        scale: 1,
-        duration: 0.7,
-        ease: 'none',
-      }, 0.3);
-    } else if (phraseChars.length) {
-      scrollTl.fromTo('#reveal-phrase', { scale: 0.85, opacity: 0 }, {
-        scale: 1,
-        opacity: 1,
-        duration: 0.7,
-        ease: 'none',
-      }, 0.3);
-    }
-  }
-
-  
-  const mobile = isMobileViewport();
-  const exitLeft = mobile ? '-35vw' : '-55vw';
-  const exitRight = mobile ? '35vw' : '55vw';
-  scrollTl.fromTo(pLogo, { x: '0vw', opacity: 1 }, { x: exitLeft, opacity: 0, duration: 0.7, ease: 'none' }, 0.3);
-  scrollTl.fromTo(pLuke, { x: '0vw', opacity: 1 }, { x: exitLeft, opacity: 0, duration: 0.7, ease: 'none' }, 0.3);
-
-  scrollTl.set(nameLayer, { autoAlpha: 0 }, 0.98);
-
-  if (phraseChars.length) {
-    scrollTl.to(phraseChars, {
-      opacity: 1,
-      ...(isMobile ? {} : { filter: 'blur(0px)' }),
-      duration: 0.06,
-      ease: 'none',
-      stagger: { each: 0.007, from: 'start' },
-    }, 0.62);
-  }
+  const useFooterLanding = !!document.getElementById('about-footer');
 
   const REVEAL_PHASE_START = 0.3;
   const REVEAL_PHASE_DURATION = 0.7;
@@ -588,26 +489,67 @@ async function setupScrollReveal() {
     drawFrame(idx);
   }
 
-  ScrollTrigger.create({
-    trigger: '#scroll-wrap',
-    start: 'top top',
-    end: 'bottom bottom',
-    scrub: 0.5,
-    animation: scrollTl,
-    onUpdate: (self) => {
-      
-      const p = self.progress;
-      if (keepIntroNameAnchored && p > 0.001) {
-        stopIntroNameAnchor();
+  if (!useFooterLanding) {
+    const scrollTl = gsap.timeline({ paused: true });
+
+    scrollTl.fromTo(pContent, { x: introXvw, y: introSettledY }, { x: introXvw, y: 0, duration: 0.3, ease: 'none' }, 0);
+    scrollTl.fromTo('#hero-tagline', { opacity: 1 }, { opacity: 0, duration: 0.15, ease: 'none' }, 0);
+    scrollTl.fromTo('#hero-line', { opacity: 1 }, { opacity: 0, duration: 0.15, ease: 'none' }, 0);
+
+    if (revealWrap) {
+      scrollTl.fromTo(revealWrap, { opacity: 0 }, { opacity: 1, duration: 0.01 }, 0.3);
+      if (!textOnlyReveal && revealSeq.length) {
+        scrollTl.fromTo(revealSeq, { scale: 0 }, {
+          scale: 1,
+          duration: 0.7,
+          ease: 'none',
+        }, 0.3);
+      } else if (phraseChars.length) {
+        scrollTl.fromTo('#reveal-phrase', { scale: 0.85, opacity: 0 }, {
+          scale: 1,
+          opacity: 1,
+          duration: 0.7,
+          ease: 'none',
+        }, 0.3);
       }
-      if (p < REVEAL_PHASE_START) {
-        drawFrameAtProgress(0);
-        return;
-      }
-      const phase2 = Math.min(1, Math.max(0, (p - REVEAL_PHASE_START) / REVEAL_PHASE_DURATION));
-      drawFrameAtProgress(phase2 * FRAME_PROGRESS_AT_EXIT_START);
-    },
-  });
+    }
+
+    const mobile = isMobileViewport();
+    const exitLeft = mobile ? '-35vw' : '-55vw';
+    scrollTl.fromTo(pLogo, { x: '0vw', opacity: 1 }, { x: exitLeft, opacity: 0, duration: 0.7, ease: 'none' }, 0.3);
+    scrollTl.fromTo(pLuke, { x: '0vw', opacity: 1 }, { x: exitLeft, opacity: 0, duration: 0.7, ease: 'none' }, 0.3);
+    scrollTl.set(nameLayer, { autoAlpha: 0 }, 0.98);
+
+    if (phraseChars.length) {
+      scrollTl.to(phraseChars, {
+        opacity: 1,
+        ...(isMobile ? {} : { filter: 'blur(0px)' }),
+        duration: 0.06,
+        ease: 'none',
+        stagger: { each: 0.007, from: 'start' },
+      }, 0.62);
+    }
+
+    ScrollTrigger.create({
+      trigger: '#scroll-wrap',
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 0.5,
+      animation: scrollTl,
+      onUpdate: (self) => {
+        const p = self.progress;
+        if (keepIntroNameAnchored && p > 0.001) {
+          stopIntroNameAnchor();
+        }
+        if (p < REVEAL_PHASE_START) {
+          drawFrameAtProgress(0);
+          return;
+        }
+        const phase2 = Math.min(1, Math.max(0, (p - REVEAL_PHASE_START) / REVEAL_PHASE_DURATION));
+        drawFrameAtProgress(phase2 * FRAME_PROGRESS_AT_EXIT_START);
+      },
+    });
+  }
 
   
   const revealOverlay = document.getElementById('reveal-overlay');
@@ -673,6 +615,7 @@ function setupAboutSection() {
       asciiLeftId: 'about-ascii-left',
       asciiRightId: 'about-ascii-right',
       enableParallax: true,
+      landingFooter: true,
     });
   }
 
@@ -803,13 +746,17 @@ function setupProjectsSection() {
     _projectsVisible = true;
   }
 
-  function hidePreviewPanel() {
+  function fadePreviewForSkills() {
+    gsap.to(preview, { opacity: 0, duration: 0.15, ease: 'power2.in', overwrite: 'auto' });
+    gsap.to(card, { opacity: 0, duration: 0.15, ease: 'power2.in', overwrite: 'auto' });
     preview.classList.remove('visible');
-    _projectsVisible = false;
-    gsap.to(preview, { opacity: 0, duration: 0.25, ease: 'power2.in', overwrite: 'auto' });
-    gsap.to(card, { opacity: 0, duration: 0.25, ease: 'power2.in', overwrite: 'auto' });
-    currentIdx = -1;
-    items.forEach(item => item.classList.remove('active'));
+  }
+
+  function restorePreviewFromSkills() {
+    if (currentIdx < 0 || !_projectsVisible) return;
+    preview.classList.add('visible');
+    gsap.to(preview, { opacity: 1, duration: 0.2, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to(card, { opacity: 1, duration: 0.2, ease: 'power2.out', overwrite: 'auto' });
   }
 
   
@@ -823,7 +770,6 @@ function setupProjectsSection() {
 
   
   const projectsEl = document.getElementById('projects');
-  const projectsExit = document.getElementById('projects-exit');
   ScrollTrigger.create({
     trigger: projectsEl,
     start: 'top 80%',
@@ -836,42 +782,12 @@ function setupProjectsSection() {
     },
   });
 
-  if (projectsExit) {
-    gsap.to(preview, {
-      opacity: 0,
-      ease: 'power2.inOut',
-      scrollTrigger: {
-        trigger: projectsExit,
-        start: 'top 92%',
-        end: 'top 50%',
-        scrub: 0.45,
-        onLeave: () => preview.classList.remove('visible'),
-        onEnterBack: () => {
-          if (_projectsVisible && currentIdx >= 0) {
-            preview.classList.add('visible');
-            gsap.to(preview, { opacity: 1, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
-            gsap.to(card, { opacity: 1, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
-          }
-        },
-      },
-    });
-
-    gsap.to(card, {
-      opacity: 0,
-      ease: 'power2.inOut',
-      scrollTrigger: {
-        trigger: projectsExit,
-        start: 'top 92%',
-        end: 'top 50%',
-        scrub: 0.45,
-        onEnterBack: () => {
-          if (_projectsVisible && currentIdx >= 0) {
-            gsap.to(card, { opacity: 1, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
-          }
-        },
-      },
-    });
-  }
+  ScrollTrigger.create({
+    trigger: '#skills',
+    start: 'top bottom',
+    onEnter: fadePreviewForSkills,
+    onEnterBack: restorePreviewFromSkills,
+  });
 
   
   const itemQuickX = [...items].map(item =>
