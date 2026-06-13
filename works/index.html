@@ -1,26 +1,68 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="fr" data-i18n-title="works.title">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Work</title>
-  <link rel="stylesheet" href="../styles/base.css">
+  <title>Work — Taegeon Park</title>
+  <meta name="description" content="Développeur créatif spécialisé en interfaces web, animation et design interactif. Découvrez mes projets et réalisations.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.lukebaffait.fr/works">
+  <meta property="og:title" content="Work — Taegeon Park">
+  <meta property="og:description" content="Développeur créatif spécialisé en interfaces web, animation et design interactif. Découvrez mes projets et réalisations.">
+  <meta property="og:image" content="https://www.lukebaffait.fr/assets/images/cover/cover.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.lukebaffait.fr/assets/images/cover/cover.jpg">
+  <meta name="author" content="Taegeon Park">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" type="image/x-icon" href="../assets/favicon/favicon.ico">
+  <link rel="canonical" href="https://www.lukebaffait.fr/works">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+  <link rel="preload" href="../assets/fonts/Breton.woff2" as="font" type="font/otf" crossorigin>
+  <link rel="preload" href="../assets/fonts/Machine.otf" as="font" type="font/otf" crossorigin>
+  <link rel="stylesheet" href="../styles/works.css">
 </head>
 <body>
+
+  <div class="intro-overlay" id="intro-overlay"></div>
   <div class="page-title" id="page-title">Work</div>
-  <a class="back-btn" href="../">Back</a>
-  <nav class="nav-dock" id="nav-dock"></nav>
 
-  <main class="works-stage">
-    <div class="works-track" id="works-track"></div>
-  </main>
+  <h1 class="sr-only" data-i18n="works.h1">Projets — Taegeon Park, Creative Developer. Découvrez mes réalisations en développement web, animation et design interactif.</h1>
 
-  <div class="project-overlay" id="project-overlay" hidden aria-hidden="true">
-    <button class="project-overlay__close" id="overlay-close" type="button" aria-label="Close">Close</button>
-    <div class="project-overlay__inner" id="overlay-content"></div>
+  <a class="back-btn" id="back-btn" href="../" aria-label="Retour à l'accueil">
+    <span class="chr-hover" data-chr="Back"></span>
+  </a>
+
+  <div class="scroll-hint" id="scroll-hint">Scroll to explore</div>
+
+  <div class="scroll-chevron" id="scroll-chevron">
+    <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
 
-  <footer class="footer" id="footer"></footer>
-  <script type="module" src="works.js"></script>
+  <canvas class="ruler" id="ruler-left"></canvas>
+  <canvas class="ruler" id="ruler-right"></canvas>
+  <div class="counter-wrap" id="counter-wrap">
+    <div class="counter-window">
+      <div class="counter-strip" id="counter-strip"></div>
+    </div>
+  </div>
+
+  <div class="cube-viewport" id="cube-viewport">
+    <div class="cube-scene">
+      <div class="cube" id="cube">
+        <div class="cube-face" data-face="0"></div>
+        <div class="cube-face" data-face="1"></div>
+        <div class="cube-face" data-face="2"></div>
+        <div class="cube-face" data-face="3"></div>
+      </div>
+    </div>
+  </div>
+
+  <script defer src="../js/i18n.js"></script>
+  <script type="module" src="../js/prism-renderer.mjs"></script>
+  <script defer src="../js/vendor/gsap.min.js"></script>
+  <script defer src="../js/works.js"></script>
 </body>
 </html>

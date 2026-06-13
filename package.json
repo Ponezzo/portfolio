@@ -6,5 +6,8 @@
     "apply:tokens": "node scripts/apply-tokens.mjs",
     "dev": "npx serve . -p 4173",
     "build": "npm run apply:tokens"
+  },
+  "dependencies": {
+    "three": "^0.170.0"
   }
 }
