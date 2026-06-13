@@ -538,7 +538,33 @@ a.chr-hover {
 .about {
   position: relative;
   min-height: 100vh;
-  padding: 45vh 4rem 80vh;
+  padding: 0 4rem 80vh;
+}
+
+.about-footer-transition {
+  position: relative;
+  height: 80vh;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.about-footer {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  z-index: 20006;
+  visibility: hidden;
+  background: #0a0a0a;
+  pointer-events: none;
+}
+
+.about-body {
+  position: relative;
+  z-index: 10;
+  padding-top: 8vh;
+  min-height: 120vh;
 }
 
 .about-text {
@@ -814,8 +840,9 @@ a.chr-hover {
 .about-photo-wrap {
   position: absolute;
   right: 0;
-  top: 35vh;
+  top: 18vh;
   z-index: 5;
+  pointer-events: none;
 }
 
 .about-photo {

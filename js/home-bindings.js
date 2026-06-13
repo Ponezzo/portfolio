@@ -67,20 +67,19 @@
   }
 
   function applyFooter(footer) {
-    const mail = document.querySelector('.footer-mail');
-    if (mail) {
+    document.querySelectorAll('.footer-mail').forEach((mail) => {
       mail.setAttribute('data-chr-footer', footer.email);
-      mail.href = `mailto:${footer.email}`;
-    }
-    const date = document.querySelector('.footer-date');
-    if (date) date.setAttribute('data-chr-footer', footer.copyright);
-
-    const first = document.querySelector('.footer-name-luke');
-    if (first) {
+      if (mail.tagName === 'A') mail.href = `mailto:${footer.email}`;
+    });
+    document.querySelectorAll('.footer-date').forEach((date) => {
+      date.setAttribute('data-chr-footer', footer.copyright);
+    });
+    document.querySelectorAll('.footer-name-luke').forEach((first) => {
       first.innerHTML = `<span class="first-letter">${footer.nameFirst.charAt(0)}</span>${footer.nameFirst.slice(1)}`;
-    }
-    const last = document.querySelector('.footer-name-baffait');
-    if (last) last.textContent = footer.nameLast;
+    });
+    document.querySelectorAll('.footer-name-baffait').forEach((last) => {
+      last.textContent = footer.nameLast;
+    });
   }
 
   function applyPreview(preview) {

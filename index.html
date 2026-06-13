@@ -26,7 +26,7 @@
   <link rel="preload" href="assets/images/profile/taegeon.jpg" as="image" fetchpriority="high">
   <link rel="preload" href="assets/images/projects/Covers/cyberDiag_web.avif" as="image" fetchpriority="high">
   <link rel="preload" href="assets/images/projects/Covers/Anima.avif" as="image" fetchpriority="low">
-  <link rel="stylesheet" href="styles/index.css?v=20260613-r1">
+  <link rel="stylesheet" href="styles/index.css?v=20260613-r2">
   <link rel="stylesheet" href="styles/home-colors.css">
   <link rel="stylesheet" href="styles/home-generated.css">
 </head>
@@ -77,11 +77,44 @@
   
   <section class="section-after" id="section-after">
     <div class="about" id="about">
-      <div class="about-text" id="about-text" data-i18n="index.about.text">제목</div>
-      <div class="about-sub" id="about-sub" data-i18n="index.about.sub">본문</div>
-      <div class="about-photo-wrap" id="about-photo-wrap">
-        <img class="about-photo" src="assets/images/profile/taegeon.jpg" alt="Taegeon Park" decoding="async" width="800"
-          height="800">
+      <div class="about-footer-transition" id="about-footer-transition"></div>
+      <div class="about-footer" id="about-footer">
+        <div class="footer-content">
+          <div class="footer-top">
+            <div class="footer-top-col">
+              <span class="chr-hover footer-mail" data-chr-footer="taegeonpark97@gmail.com"></span>
+              <span class="chr-hover footer-date" data-chr-footer="© 2026"></span>
+            </div>
+            <nav class="footer-top-col" aria-hidden="true">
+              <span class="chr-hover" data-chr-footer="GitHub"></span>
+            </nav>
+            <nav class="footer-top-col" aria-hidden="true">
+              <span class="chr-hover" data-chr-footer="Work"></span>
+              <span class="chr-hover" data-chr-footer="Contact"></span>
+            </nav>
+          </div>
+          <div class="footer-ascii-wrap">
+            <div class="footer-ascii left">
+              <pre id="about-ascii-left"></pre>
+            </div>
+            <div class="footer-ascii right">
+              <pre id="about-ascii-right"></pre>
+            </div>
+          </div>
+          <div class="footer-name">
+            <span class="footer-name-luke"><span class="first-letter">T</span>aegeon</span><span
+              class="footer-name-baffait-wrap"><span class="footer-name-baffait">Park</span><span
+                class="footer-name-dot">.</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="about-body" id="about-body">
+        <div class="about-text" id="about-text" data-i18n="index.about.text">제목</div>
+        <div class="about-sub" id="about-sub" data-i18n="index.about.sub">본문</div>
+        <div class="about-photo-wrap" id="about-photo-wrap">
+          <img class="about-photo" src="assets/images/profile/taegeon.jpg" alt="Taegeon Park" decoding="async" width="800"
+            height="800">
+        </div>
       </div>
     </div>
 
@@ -203,7 +236,8 @@
   <script defer src="js/vendor/gsap.min.js"></script>
   <script defer src="js/vendor/ScrollTrigger.min.js"></script>
   <script defer src="js/vendor/lenis.min.js"></script>
-  <script defer src="js/index.js?v=prism11"></script>
+  <script defer src="js/footer-reveal.js"></script>
+  <script defer src="js/index.js?v=prism12"></script>
 
   <div class="scroll-timeline" id="scroll-timeline">
     <span class="st-label" id="st-label"></span>
