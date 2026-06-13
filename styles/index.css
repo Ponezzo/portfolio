@@ -1,10 +1,16 @@
 :root {
-  --prism-accent: #a78bfa;
-  --prism-hot: #22d3ee;
-  --prism-pink: #ff6ec7;
-  --prism-green: #4ade80;
-  --prism-gradient: linear-gradient(135deg, #ff6ec7 0%, #7873f5 25%, #22d3ee 50%, #4ade80 75%, #fbbf24 100%);
-  --prism-gradient-soft: linear-gradient(135deg, rgba(255,110,199,0.9), rgba(120,115,245,0.85), rgba(34,211,238,0.9));
+  --prism-cyan: #00f0ff;
+  --prism-magenta: #ff00aa;
+  --prism-yellow: #d4ff00;
+  --prism-white: #ffffff;
+  --prism-bg: #000000;
+  --prism-accent: var(--prism-white);
+  --prism-hot: var(--prism-cyan);
+  --prism-pink: var(--prism-magenta);
+  --prism-green: var(--prism-yellow);
+  --prism-gradient: linear-gradient(135deg, var(--prism-magenta) 0%, var(--prism-cyan) 45%, var(--prism-yellow) 100%);
+  --prism-gradient-soft: linear-gradient(160deg, rgba(255,0,170,0.55), rgba(0,240,255,0.45), rgba(212,255,0,0.25));
+  --prism-text-glow: 0 0 24px rgba(0,240,255,0.35), 0 0 48px rgba(255,0,170,0.2);
 }
 
 .sr-only {
@@ -68,7 +74,7 @@ body {
   max-width: 100vw;
   min-height: 100%;
   overflow-x: clip;
-  background: #0a0a0a;
+  background: var(--prism-bg);
   color: #f0f0f0;
   font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -481,7 +487,70 @@ a.chr-hover {
 }
 
 .reveal-phrase .rp-char {
-  text-shadow: 0 0 18px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 0, 0, 0.6);
+  text-shadow:
+    0 0 12px rgba(0, 240, 255, 0.55),
+    0 0 24px rgba(255, 0, 170, 0.35),
+    0 0 36px rgba(212, 255, 0, 0.15);
+}
+
+.reveal-image-wrap--text-only {
+  background: transparent;
+}
+
+.reveal-image-wrap--text-only .reveal-phrase {
+  position: relative;
+  font-size: clamp(1.4rem, 3vw, 2.6rem);
+  background: var(--prism-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.25));
+}
+
+.reveal-image-wrap--text-only .reveal-phrase .rp-char {
+  text-shadow: none;
+  color: inherit;
+}
+
+.prism-hero,
+.prism-hero__wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.prism-hero__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.08);
+  filter: saturate(1.15) contrast(1.05);
+}
+
+.prism-hero__glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(0, 240, 255, 0.12), transparent 45%),
+    radial-gradient(circle at 70% 60%, rgba(255, 0, 170, 0.1), transparent 40%);
+  mix-blend-mode: screen;
+}
+
+.contact--minimal {
+  min-height: 70vh;
+}
+
+.contact--minimal .contact-pin {
+  justify-content: flex-end;
+  padding-bottom: 18vh;
+}
+
+.proj-item.active {
+  background: linear-gradient(90deg, rgba(255, 0, 170, 0.08), rgba(0, 240, 255, 0.06));
+  text-shadow: var(--prism-text-glow);
 }
 
 
@@ -771,10 +840,11 @@ a.chr-hover {
 
 .fluid-line {
   fill: none;
-  stroke: var(--prism-hot);
+  stroke: url(#prism-stroke-gradient);
   stroke-width: 72;
   stroke-linecap: round;
   stroke-linejoin: round;
+  filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.35)) drop-shadow(0 0 28px rgba(255, 0, 170, 0.25));
 }
 
 .about-photo-wrap {
@@ -789,10 +859,14 @@ a.chr-hover {
   height: auto;
   object-fit: cover;
   display: block;
-  will-change: transform;
+  will-change: transform, filter;
   opacity: 0;
-  filter: blur(20px);
+  filter: blur(20px) saturate(1.2);
   border-radius: 280px 0 0 280px;
+  box-shadow:
+    -8px 0 32px rgba(0, 240, 255, 0.25),
+    8px 0 32px rgba(255, 0, 170, 0.2),
+    0 0 64px rgba(212, 255, 0, 0.08);
 }
 
 

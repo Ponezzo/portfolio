@@ -93,15 +93,7 @@
   </div>
 
   
-  <div class="reveal-image-wrap" id="reveal-image-wrap">
-    <canvas class="reveal-image reveal-seq" id="reveal-canvas"></canvas>
-    <div class="reveal-frame reveal-seq">
-      <span class="reveal-corner tl"></span>
-      <span class="reveal-corner tr"></span>
-      <span class="reveal-corner bl"></span>
-      <span class="reveal-corner br"></span>
-    </div>
-    <div class="reveal-overlay" id="reveal-overlay"></div>
+  <div class="reveal-image-wrap reveal-image-wrap--text-only" id="reveal-image-wrap">
     <p class="reveal-phrase" id="reveal-phrase">Basically, I build product experiences.</p>
   </div>
 
@@ -123,13 +115,20 @@
   <path d="M11 38H54L37 21H51L73 43L51 65H37L54 48H11Z"/>
 </svg>V3.0</div>
       <div class="about-photo-wrap" id="about-photo-wrap">
-        <img class="about-photo" src="assets/images/profile/me.avif" alt="Taegeon Park" decoding="async" width="2500"
-          height="3001">
+        <img class="about-photo" src="assets/images/profile/taegeon.jpg" alt="Taegeon Park" decoding="async" width="800"
+          height="800">
       </div>
     </div>
 
     <div class="projects" id="projects">
       <svg class="fluid-line-svg" id="fluid-line-svg" viewBox="0 0 1400 1400" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="prism-stroke-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff00aa"/>
+            <stop offset="45%" stop-color="#00f0ff"/>
+            <stop offset="100%" stop-color="#d4ff00"/>
+          </linearGradient>
+        </defs>
         <path class="fluid-line" id="fluid-line" d="
           M -80,0
           C 300,-20  600,150  540,400
@@ -140,40 +139,12 @@
       </svg>
       <div class="projects-inner">
         <div class="projects-list" id="projects-list">
-          <div class="proj-item" data-id="cyberdiag" data-img="assets/images/projects/Covers/cyberDiag_web.avif"
-            data-date="01 2025">CyberDiag website</div>
-          <div class="proj-item" data-id="anima" data-img="assets/images/projects/Covers/Anima.avif"
-            data-date="06 2025">Anima</div>
-          <div class="proj-item" data-id="cyberdiag-app" data-img="assets/images/projects/Covers/CyberDiag.avif"
-            data-date="09 2025">CyberDiag app</div>
-          <div class="proj-item" data-id="zenith" data-img="assets/images/projects/Covers/Zenith.avif"
-            data-date="11 2025">Zenith</div>
-          <div class="proj-item" data-id="skymcdb" data-img="assets/images/projects/Covers/SkymcDB.avif"
-            data-date="02 2026">SkymcDB</div>
-          <div class="proj-item" data-id="chromablock" data-img="assets/images/projects/Covers/ChromaBlock.avif"
-            data-date="03 2026">ChromaBlock</div>
-          <div class="proj-item" data-id="symphony" data-img="assets/images/projects/Covers/Symphony.avif"
-            data-date="03 2026">Symphony</div>
-          <div class="proj-item" data-id="echo" data-img="assets/images/projects/Covers/Echo.avif" data-date="03 2026">
-            Echo</div>
+          <div class="proj-item" data-id="flip" data-img="assets/covers/flip.svg" data-date="12 2025">FLIP</div>
+          <div class="proj-item" data-id="dingading" data-img="assets/covers/dingading.svg" data-date="08 2025">Dingading</div>
+          <div class="proj-item" data-id="wakwak" data-img="assets/covers/wakwak.svg" data-date="06 2025">WakWak</div>
+          <div class="proj-item" data-id="cinemovie" data-img="assets/covers/cinemovie.svg" data-date="03 2024">CINEMovie</div>
         </div>
       </div>
-    </div>
-  </section>
-
-  
-  <section class="circle-gallery" id="circle-gallery">
-    <div class="circle-gallery-pin" id="circle-gallery-pin">
-      <img class="cg-img" src="assets/images/projects/Covers/cyberDiag_web.avif" alt="CyberDiag — site web" width="3000" height="2250">
-      <img class="cg-img" src="assets/images/projects/Covers/Anima.avif" alt="Anima — site web sur la cause animale" width="3000" height="2250">
-      <img class="cg-img" src="assets/images/projects/Covers/CyberDiag.avif" alt="CyberDiag — application desktop de cybersécurité" width="1333" height="1000">
-      <img class="cg-img" src="assets/images/projects/Covers/Zenith.avif" alt="Zenith — navigateur web" width="2667" height="2000">
-      <img class="cg-img" src="assets/images/projects/Covers/SkymcDB.avif" alt="SkymcDB — outil pour builders Minecraft" width="2667" height="2000">
-      <img class="cg-img" src="assets/images/projects/Covers/ChromaBlock.avif" alt="ChromaBlock — version web de SkymcDB" width="2667" height="2000">
-      <img class="cg-img" src="assets/images/projects/Covers/Symphony.avif" alt="Symphony — application web de musique" width="2667" height="2000">
-      <img class="cg-img" src="assets/images/projects/Covers/Echo.avif" alt="Echo — interface IA conversationnelle locale" width="2667" height="2000">
-      <p class="cg-phrase" id="cg-phrase" data-i18n="index.cg.phrase">Chaque projet est une occasion d'<span class="other-accent">apprendre</span>,
-        d'<span class="other-accent">expérimenter</span> et de repousser mes limites.</p>
     </div>
   </section>
 
@@ -182,9 +153,8 @@
     <div class="skills-inner">
       <div class="skills-left">
         <div class="skills-subtitle" data-i18n="index.skills.subtitle">Compétences</div>
-        <div class="skills-text" data-i18n="index.skills.text">
-          Étudiant en BUT Informatique à Vannes, spécialisé en cybersécurité, passionné par le développement et le
-          design web.
+        <div class="skills-text">
+          SSAFY PM · 삼성 생기원 연계 스마트팩토리 프로젝트 · AI·커뮤니티·모바일 서비스 기획 경험
         </div>
         <div class="skills-separator"></div>
         <div><a class="skills-contact chr-hover" data-chr="Contact me🞣" href="contact/"
@@ -199,15 +169,14 @@
               class="skill-header-icon"></span></div>
           <div class="skill-body">
             <ul class="skill-body-inner">
-              <li>HTML</li>
-              <li>CSS</li>
+              <li>Vue 3</li>
+              <li>React</li>
+              <li>React Native</li>
+              <li>Next.js</li>
               <li>JavaScript</li>
               <li>TypeScript</li>
-              <li>React</li>
-              <li>Next.js</li>
-              <li>Tailwind</li>
-              <li>Bootstrap</li>
-              <li>Electron</li>
+              <li>HTML / CSS</li>
+              <li>Tailwind CSS</li>
             </ul>
           </div>
         </div>
@@ -218,10 +187,8 @@
             <ul class="skill-body-inner">
               <li>GSAP</li>
               <li>Lenis</li>
-              <li>Barba.js</li>
               <li>Three.js</li>
               <li>WebGL</li>
-              <li>Blender</li>
             </ul>
           </div>
         </div>
@@ -230,12 +197,10 @@
               class="skill-header-icon"></span></div>
           <div class="skill-body">
             <ul class="skill-body-inner">
-              <li>Node.js</li>
-              <li>Express.js</li>
               <li>Python</li>
               <li>Java</li>
-              <li>PHP</li>
-              <li>Netlify</li>
+              <li>Node.js</li>
+              <li>Django REST</li>
             </ul>
           </div>
         </div>
@@ -246,8 +211,7 @@
             <ul class="skill-body-inner">
               <li>MySQL</li>
               <li>PostgreSQL</li>
-              <li>MongoDB</li>
-              <li>Supabase</li>
+              <li>SQLite</li>
             </ul>
           </div>
         </div>
@@ -256,28 +220,26 @@
               class="skill-header-icon"></span></div>
           <div class="skill-body">
             <ul class="skill-body-inner">
-              <li>Docker</li>
-              <li>Vercel</li>
               <li>Git</li>
               <li>GitHub</li>
-              <li>GitLab</li>
-              <li>Cloudflare</li>
+              <li>Docker</li>
+              <li>Vercel</li>
+              <li>Figma</li>
+              <li>Notion</li>
             </ul>
           </div>
         </div>
-        <div class="skill-group" data-group="sysadmin">
-          <div class="skill-header"><span class="skill-header-title" data-i18n="index.skills.security">Système & Sécurité</span><span
+        <div class="skill-group" data-group="product">
+          <div class="skill-header"><span class="skill-header-title">Product & Planning</span><span
               class="skill-header-icon"></span></div>
           <div class="skill-body">
             <ul class="skill-body-inner">
-              <li>Linux</li>
-              <li>Bash</li>
-              <li>Shell</li>
-              <li>Owasp</li>
-              <li>Metasploit</li>
-              <li>Nmap</li>
-              <li>OpenVAS</li>
-              <li>Ossec</li>
+              <li>Product Strategy</li>
+              <li>UX Planning</li>
+              <li>Agile / Scrum</li>
+              <li>Figma Prototyping</li>
+              <li>SQLD</li>
+              <li>ADsP</li>
             </ul>
           </div>
         </div>
@@ -286,32 +248,11 @@
               class="skill-header-icon"></span></div>
           <div class="skill-body">
             <ul class="skill-body-inner">
+              <li>Figma</li>
               <li>Photoshop</li>
               <li>Canva</li>
-              <li>Figma</li>
             </ul>
           </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Récompenses / Awards -->
-  <section class="awards" id="awards">
-    <div class="awards-inner">
-      <div class="skills-subtitle awards-title">Récompenses</div>
-      <div class="awards-list" id="awards-list">
-        <div class="award-item" data-cursor-img="assets/images/projects/Covers/Portfolio.avif">
-          <div class="award-org">GSAP</div>
-          <div class="award-site">lukebaffait.fr</div>
-          <div class="award-prize">Site of the week</div>
-          <div class="award-date">17 06 2026</div>
-        </div>
-        <div class="award-item" data-cursor-img="assets/images/projects/Covers/Portfolio.avif">
-          <div class="award-org">Awwwards</div>
-          <div class="award-site">lukebaffait.fr</div>
-          <div class="award-prize">Nominee</div>
-          <div class="award-date">26 06 2026</div>
         </div>
       </div>
     </div>
@@ -322,45 +263,14 @@
   <div class="contact-blob-wrap" id="contact-blob-wrap">
     <div class="contact-blob" id="contact-blob"></div>
   </div>
-  <section class="contact" id="contact">
+  <section class="contact contact--minimal" id="contact">
     <div class="contact-pin" id="contact-pin">
       <div class="contact-title" id="contact-title">Contact</div>
-
-      <div class="contact-dispo" id="contact-dispo">
-        <p data-i18n="index.contact.dispo1">À la recherche d'une <span class="other-accent">alternance</span> à partir de septembre. Motivé à rejoindre
-          une équipe innovante et à contribuer à des projets ambitieux.</p>
-      </div>
-
-      <div class="contact-frame" id="contact-frame">
-        <img class="contact-frame-img" id="contact-frame-img" src="assets/images/art/Untitled2.png" alt=""
-          loading="lazy" decoding="async">
-        <span class="frame-corner tl"></span>
-        <span class="frame-corner tr"></span>
-        <span class="frame-corner bl"></span>
-        <span class="frame-corner br"></span>
-      </div>
-
-      <div class="contact-dispo" id="contact-dispo-2">
-        <p data-i18n="index.contact.dispo2">Je suis disponible pour<span class="other-accent"> des missions en freelance</span> partout dans le monde,
-          sur<span class="other-accent"> vos projets ambitieux</span> et des collaborations internationales.</p>
-      </div>
-
-      <div class="contact-frame" id="contact-frame-2">
-        <img class="contact-frame-img" id="contact-frame-img-2" src="assets/images/art/Untitled1.png" alt=""
-          loading="lazy" decoding="async">
-        <span class="frame-corner tl"></span>
-        <span class="frame-corner tr"></span>
-        <span class="frame-corner bl"></span>
-        <span class="frame-corner br"></span>
-      </div>
-
       <div class="contact-bottom" id="contact-bottom">
-        <nav class="contact-socials" id="contact-socials" aria-label="Réseaux sociaux">
+        <nav class="contact-socials" id="contact-socials" aria-label="Social links">
           <a class="chr-hover" data-chr-contact="GitHub" href="https://github.com/Ponezzo" target="_blank" rel="noopener noreferrer" aria-label="GitHub"></a>
-          <a class="chr-hover" data-chr-contact="LinkedIn" href="https://www.linkedin.com/in/luke-baffait/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"></a>
-          <a class="chr-hover" data-chr-contact="Behance" href="https://www.behance.net/lukebaffait" target="_blank" rel="noopener noreferrer" aria-label="Behance"></a>
         </nav>
-        <a class="contact-mail" id="contact-mail" href="mailto:luke.baffait@yahoo.com">luke.baffait@yahoo.com</a>
+        <a class="contact-mail" id="contact-mail" href="mailto:taegeonpark97@gmail.com">taegeonpark97@gmail.com</a>
       </div>
     </div>
   </section>
@@ -371,14 +281,12 @@
     <div class="footer-content" id="footer-content">
       <div class="footer-top">
         <div class="footer-top-col">
-          <a class="chr-hover footer-mail" data-chr-footer="luke.baffait@yahoo.com"
-            href="mailto:luke.baffait@yahoo.com" aria-label="Envoyer un mail"></a>
+          <a class="chr-hover footer-mail" data-chr-footer="taegeonpark97@gmail.com"
+            href="mailto:taegeonpark97@gmail.com" aria-label="Send email"></a>
           <span class="chr-hover footer-date" data-chr-footer="© 2026"></span>
         </div>
         <nav class="footer-top-col" aria-label="Réseaux sociaux">
           <a class="chr-hover" data-chr-footer="GitHub" href="https://github.com/Ponezzo" target="_blank" rel="noopener noreferrer" aria-label="GitHub"></a>
-          <a class="chr-hover" data-chr-footer="LinkedIn" href="https://www.linkedin.com/in/luke-baffait/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"></a>
-          <a class="chr-hover" data-chr-footer="Behance" href="https://www.behance.net/lukebaffait" target="_blank" rel="noopener noreferrer" aria-label="Behance"></a>
         </nav>
         <nav class="footer-top-col" aria-label="Navigation pied de page">
           <a class="chr-hover" data-chr-footer="Work" href="works/" data-page-link="work" aria-label="Work"></a>
@@ -408,7 +316,7 @@
         <span class="proj-date" id="proj-date">01 2025</span>
         <span class="proj-label">Preview</span>
       </div>
-      <img id="proj-cover" src="assets/images/projects/Covers/CyberDiag.avif" alt="" width="1333" height="1000">
+      <img id="proj-cover" src="assets/covers/flip.svg" alt="" width="1333" height="1000">
     </div>
   </div>
   <div class="proj-cursor" id="proj-cursor">See project</div>

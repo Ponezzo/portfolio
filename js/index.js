@@ -434,7 +434,8 @@ async function setupScrollReveal() {
   const revealWrap = document.getElementById('reveal-image-wrap');
   const revealSeq = document.querySelectorAll('.reveal-seq');
   const canvas = document.getElementById('reveal-canvas');
-  const ctx = canvas.getContext('2d');
+  const textOnlyReveal = revealWrap && revealWrap.classList.contains('reveal-image-wrap--text-only');
+  const ctx = canvas ? canvas.getContext('2d') : null;
 
   
   const phraseEl = document.getElementById('reveal-phrase');
@@ -466,9 +467,10 @@ async function setupScrollReveal() {
   }
 
   
-  canvas.style.willChange = 'transform';
+  if (canvas) canvas.style.willChange = 'transform';
 
   function resizeCanvas() {
+    if (!canvas || !ctx) return;
     
     const dpr = isSlowHardware ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
     canvas.width = Math.round(window.innerWidth * dpr);
@@ -565,10 +567,12 @@ async function setupScrollReveal() {
   }
 
   window.addEventListener('resize', resizeCanvas);
-  totalFrames = TOTAL_FRAMES;
-  loadedFrameIdx = Array.from({ length: TOTAL_FRAMES }, (_, i) => i);
-  resizeCanvas();
-  drawFrame(0);
+  if (!textOnlyReveal && canvas) {
+    totalFrames = TOTAL_FRAMES;
+    loadedFrameIdx = Array.from({ length: TOTAL_FRAMES }, (_, i) => i);
+    resizeCanvas();
+    drawFrame(0);
+  }
 
   const introSettledY = Number(gsap.getProperty(pContent, 'y')) || 0;
   
@@ -583,11 +587,20 @@ async function setupScrollReveal() {
 
   
   scrollTl.fromTo(revealWrap, { opacity: 0 }, { opacity: 1, duration: 0.01 }, 0.3);
-  scrollTl.fromTo(revealSeq, { scale: 0 }, {
-    scale: 1,
-    duration: 0.7,
-    ease: 'none',
-  }, 0.3);
+  if (!textOnlyReveal && revealSeq.length) {
+    scrollTl.fromTo(revealSeq, { scale: 0 }, {
+      scale: 1,
+      duration: 0.7,
+      ease: 'none',
+    }, 0.3);
+  } else {
+    scrollTl.fromTo('#reveal-phrase', { scale: 0.85, opacity: 0 }, {
+      scale: 1,
+      opacity: 1,
+      duration: 0.7,
+      ease: 'none',
+    }, 0.3);
+  }
 
   
   const mobile = isMobileViewport();
@@ -614,6 +627,7 @@ async function setupScrollReveal() {
   const FRAME_PROGRESS_AT_EXIT_START = 0.82;
 
   function drawFrameAtProgress(progress) {
+    if (textOnlyReveal || !canvas) return;
     const clamped = Math.min(1, Math.max(0, progress));
     const idx = Math.round(clamped * (TOTAL_FRAMES - 1));
     drawFrame(idx);
@@ -644,14 +658,17 @@ async function setupScrollReveal() {
   const revealOverlay = document.getElementById('reveal-overlay');
 
   const exitTl = gsap.timeline({ paused: true });
-  exitTl.to(revealWrap, { y: '-50vh', ease: 'none', duration: 1 }, 0);
-  exitTl.to(revealOverlay, { opacity: 0.7, ease: 'none', duration: 0.66 }, 0);
-  
-  
-  
-  if (!isMobile && (CSS.supports('backdrop-filter', 'blur(1px)') || CSS.supports('-webkit-backdrop-filter', 'blur(1px)'))) {
-    gsap.set(revealOverlay, { backdropFilter: 'blur(0px)' });
-    exitTl.to(revealOverlay, { backdropFilter: 'blur(16px)', ease: 'none', duration: 1 }, 0);
+  if (!textOnlyReveal) {
+    exitTl.to(revealWrap, { y: '-50vh', ease: 'none', duration: 1 }, 0);
+    if (revealOverlay) {
+      exitTl.to(revealOverlay, { opacity: 0.7, ease: 'none', duration: 0.66 }, 0);
+      if (!isMobile && (CSS.supports('backdrop-filter', 'blur(1px)') || CSS.supports('-webkit-backdrop-filter', 'blur(1px)'))) {
+        gsap.set(revealOverlay, { backdropFilter: 'blur(0px)' });
+        exitTl.to(revealOverlay, { backdropFilter: 'blur(16px)', ease: 'none', duration: 1 }, 0);
+      }
+    }
+  } else {
+    exitTl.to(revealWrap, { y: '-30vh', ease: 'none', duration: 1 }, 0);
   }
   const phraseExitTl = gsap.timeline({ paused: true });
   phraseExitTl.to(phraseChars, {
@@ -989,6 +1006,7 @@ function setupProjectsSection() {
 
   
   ; (function () {
+    if (!document.getElementById('circle-gallery')) return;
     if (isMobileViewport()) return; 
 
     const vw = window.innerWidth;
@@ -1189,13 +1207,9 @@ function setupProjectsSection() {
     var sections = [
       { id: 'about', name: 'About' },
       { id: 'projects', name: 'Projects' },
-      { id: 'circle-gallery', name: 'Gallery' },
       { id: 'skills', name: 'Skills' },
       { id: 'contact', name: 'Contact' },
-    ].filter(function (sec) {
-      if (sec.id === 'circle-gallery' && isMobileViewport()) return false;
-      return true;
-    });
+    ];
 
     var scrollY0 = window.scrollY || window.pageYOffset;
     var zoneTop = document.getElementById(sections[0].id).getBoundingClientRect().top + scrollY0;
@@ -1440,27 +1454,25 @@ function setupProjectsSection() {
     var dispoY = function () { return window.innerHeight * 1.1; };
     var dispoYEnd = function () { return -window.innerHeight * 1.65; };
 
-    
-    gsap.set(frame, { yPercent: -50, y: frameY });
-    gsap.set(frameImg, { yPercent: -30 });
+    if (frame && frameImg && dispo) {
+      gsap.set(frame, { yPercent: -50, y: frameY });
+      gsap.set(frameImg, { yPercent: -30 });
+      tl.to(frame, { y: frameYEnd, duration: frameDur, ease: 'none' }, pairStart);
+      tl.to(frameImg, { yPercent: 30, duration: frameDur, ease: 'none' }, pairStart);
+      gsap.set(dispo, { yPercent: -50, y: dispoY, opacity: 1, clipPath: 'inset(0% 0 0% 0)' });
+      tl.to(dispo, { y: dispoYEnd, duration: frameDur, ease: 'none' }, pairStart);
+      tl.to(dispo, { opacity: 0, clipPath: 'inset(100% 0 0% 0)', duration: 0.15, ease: 'power2.in' }, pairStart + 0.45);
+    }
 
-    tl.to(frame, { y: frameYEnd, duration: frameDur, ease: 'none' }, pairStart);
-    tl.to(frameImg, { yPercent: 30, duration: frameDur, ease: 'none' }, pairStart);
-
-    gsap.set(dispo, { yPercent: -50, y: dispoY, opacity: 1, clipPath: 'inset(0% 0 0% 0)' });
-    tl.to(dispo, { y: dispoYEnd, duration: frameDur, ease: 'none' }, pairStart);
-    tl.to(dispo, { opacity: 0, clipPath: 'inset(100% 0 0% 0)', duration: 0.15, ease: 'power2.in' }, pairStart + 0.45);
-
-    
-    gsap.set(frame2, { yPercent: -50, y: function () { return window.innerHeight * 1.3; } });
-    gsap.set(frameImg2, { yPercent: -30 });
-
-    tl.to(frame2, { y: frameYEnd, duration: frameDur, ease: 'none' }, pairStart + 0.07);
-    tl.to(frameImg2, { yPercent: 30, duration: frameDur, ease: 'none' }, pairStart + 0.07);
-
-    gsap.set(dispo2, { yPercent: -50, y: frameY, opacity: 1, clipPath: 'inset(0% 0 0% 0)' });
-    tl.to(dispo2, { y: frameYEnd, duration: frameDur, ease: 'none' }, pairStart);
-    tl.to(dispo2, { opacity: 0, clipPath: 'inset(100% 0 0% 0)', duration: 0.15, ease: 'power2.in' }, pairStart + 0.45);
+    if (frame2 && frameImg2 && dispo2) {
+      gsap.set(frame2, { yPercent: -50, y: function () { return window.innerHeight * 1.3; } });
+      gsap.set(frameImg2, { yPercent: -30 });
+      tl.to(frame2, { y: frameYEnd, duration: frameDur, ease: 'none' }, pairStart + 0.07);
+      tl.to(frameImg2, { yPercent: 30, duration: frameDur, ease: 'none' }, pairStart + 0.07);
+      gsap.set(dispo2, { yPercent: -50, y: frameY, opacity: 1, clipPath: 'inset(0% 0 0% 0)' });
+      tl.to(dispo2, { y: frameYEnd, duration: frameDur, ease: 'none' }, pairStart);
+      tl.to(dispo2, { opacity: 0, clipPath: 'inset(100% 0 0% 0)', duration: 0.15, ease: 'power2.in' }, pairStart + 0.45);
+    }
   })();
 
   
@@ -1848,45 +1860,25 @@ function setupProjectsSection() {
   const isEn = window.__I18N_LANG === 'en';
 
   const PROJECTS = {
-    'cyberdiag': {
-      desc: isEn ? "Showcase website for the CyberDiag app, presenting its features and benefits, and offering download for easy access." : "Site web de présentation de l'application CyberDiag, pour présenter ses fonctionnalités et ses avantages et proposer le téléchargement afin de faciliter son accès.",
-      category: isEn ? 'Website' : 'Site Web', year: '2026', tags: ['Gsap', 'Lenis', 'Three.js'],
-      images: ['assets/images/projects/CyberDiagWebsite/image1.png', 'assets/images/projects/CyberDiagWebsite/image2.png', 'assets/images/projects/CyberDiagWebsite/image3.png'],
+    'flip': {
+      desc: 'Smart factory AMR control dashboard with real-time 3D digital twin. Led PM from problem definition to MVP delivery at SSAFY × Samsung Production Technology Institute.',
+      category: 'Website', year: '2025', tags: ['Next.js', 'Three.js', 'PM'],
+      images: ['assets/covers/flip.svg'],
     },
-    'anima': {
-      desc: isEn ? "Website about animal rights, created to practice web animations with tools like GSAP and Lenis." : "Site web sur la cause animale afin de m'exercer à la création d'animations web avec des outils comme GSAP ou Lenis.",
-      category: isEn ? 'Website' : 'Site Web', year: '2026', tags: ['Gsap', 'Lenis'],
-      images: ['assets/images/projects/Anima/image1.png', 'assets/images/projects/Anima/image2.png', 'assets/images/projects/Anima/image3.png'],
+    'dingading': {
+      desc: 'AI voice-based band matching platform with quantitative tier evaluation. Defined MVP scope, matching logic, and onboarding UX as product lead.',
+      category: 'Web Application', year: '2025', tags: ['Next.js', 'AI', 'Planning'],
+      images: ['assets/covers/dingading.svg'],
     },
-    'cyberdiag-app': {
-      desc: isEn ? "Desktop application designed for SMEs to perform comprehensive cybersecurity diagnostics. Intuitive interface to assess vulnerabilities and provide tailored recommendations." : "Application conçue pour les PME afin de réaliser des diagnostics de cybersécurité complets. Interface intuitive pour évaluer les vulnérabilités et proposer des recommandations personnalisées.",
-      category: isEn ? 'Desktop App' : 'Application Desktop', year: '2026', tags: ['Python', 'Gsap', 'Three.js'],
-      images: ['assets/images/projects/cyberdiag/image1.png', 'assets/images/projects/cyberdiag/image2.png', 'assets/images/projects/cyberdiag/image3.png'],
+    'wakwak': {
+      desc: 'Emotional diary app with time capsules, anonymous letters, and constellation-based journaling. Focused on retention-oriented feature design.',
+      category: 'Mobile App', year: '2025', tags: ['React Native', 'PM'],
+      images: ['assets/covers/wakwak.svg'],
     },
-    'zenith': {
-      desc: isEn ? "Innovative web browser focused on privacy and performance, featuring a built-in ad blocker, optimized tab management, and extensive customization." : "Navigateur web innovant axé sur la confidentialité et la performance, avec bloqueur de publicités intégré, gestion optimisée des onglets et personnalisation poussée.",
-      category: isEn ? 'Desktop App' : 'Application Desktop', year: '2026', tags: ['Electron', 'JavaScript', 'Three.js'],
-      images: ['assets/images/projects/Zenith/image1.png', 'assets/images/projects/Zenith/image2.png', 'assets/images/projects/Zenith/image3.png'],
-    },
-    'skymcdb': {
-      desc: isEn ? "A powerful and intuitive tool designed to manage, organize, and optimize your Minecraft building projects, developed specifically for builders." : "Un outil puissant et intuitif conçu pour gérer, organiser et optimiser vos projets de construction Minecraft, développé spécifiquement pour les builders.",
-      category: isEn ? 'Desktop App' : 'Application Desktop', year: '2024', tags: ['Java', 'JavaFX', 'CSS'],
-      images: ['assets/images/projects/skymcdb/image.png', 'assets/images/projects/skymcdb/image2.png', 'assets/images/projects/skymcdb/image3.png', 'assets/images/projects/skymcdb/image4.png'],
-    },
-    'chromablock': {
-      desc: isEn ? "Web adaptation of SkymcDB to reach a wider audience, introducing brand new features for Minecraft builders." : "Adaptation web de SkymcDB, pour élargir l'audience, permettant des fonctionnalités inédites dans le domaine du build Minecraft.",
-      category: 'Web Application', year: '2024', tags: ['JavaScript', 'HTML', 'CSS'],
-      images: ['assets/images/projects/chromablock/image1.png', 'assets/images/projects/chromablock/image2.png', 'assets/images/projects/chromablock/image3.png'],
-    },
-    'symphony': {
-      desc: isEn ? "Web application allowing users to host and stream their music, as well as discover music published by others on the platform." : "Application web permettant aux utilisateurs d'héberger et lire leurs musiques ainsi que celles publiées par d'autres utilisateurs sur la plateforme.",
-      category: 'Web Application', year: '2024', tags: ['Netlify Functions', 'JavaScript', 'HTML/CSS'],
-      images: ['assets/images/projects/symphony/image2.png', 'assets/images/projects/symphony/image.png', 'assets/images/projects/symphony/image3.png'],
-    },
-    'echo': {
-      desc: isEn ? "Web interface to interact and chat with a local Artificial Intelligence (Qwen). Smooth and private conversational experience." : "Interface web permettant d'interagir et discuter avec une intelligence artificielle fonctionnant en local (Qwen). Expérience conversationnelle fluide et privée.",
-      category: isEn ? 'AI / Web' : 'IA / Web', year: '2024', tags: ['JavaScript', 'HTML/CSS', 'AI Local'],
-      images: ['assets/images/projects/echo/image.png'],
+    'cinemovie': {
+      desc: 'TMDB-powered movie community with AI chat recommendations and 3D carousel browsing experience.',
+      category: 'Website', year: '2024', tags: ['Vue 3', 'Gemini', 'FE'],
+      images: ['assets/covers/cinemovie.svg'],
     },
   };
 

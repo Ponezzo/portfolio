@@ -3,91 +3,43 @@
     var isEn = window.__I18N_LANG === 'en';
 
     var PROJECTS = [
-      { 
-        id: 'cyberdiag', 
-        title: 'CyberDiag Website', 
-        desc: isEn ? "Showcase website for the CyberDiag app, presenting its features and benefits, and offering download for easy access." : "Site web de présentation de l'application CyberDiag, pour présenter ses fonctionnalités et ses avantages et proposer le téléchargement afin de faciliter son accès.", 
-        category: isEn ? 'Website' : 'Site Web', 
-        year: '2026', 
-        tags: ['Gsap', 'Lenis', 'Three.js'], 
-        cover: 'assets/images/projects/Covers/cyberDiag_web.avif' 
+      {
+        id: 'flip',
+        title: 'FLIP',
+        desc: 'Smart factory AMR control dashboard with real-time 3D digital twin and performance-focused UX planning.',
+        category: 'Website',
+        year: '2025',
+        tags: ['Next.js', 'Three.js', 'PM'],
+        cover: '../assets/covers/flip.svg',
       },
-      { 
-        id: 'anima', 
-        title: 'Anima', 
-        desc: isEn ? "Website about animal rights, created to practice web animations with tools like GSAP and Lenis." : "Site web sur la cause animale afin de m'exercer à la création d'animations web avec des outils comme GSAP ou Lenis.", 
-        category: isEn ? 'Website' : 'Site Web', 
-        year: '2026', 
-        tags: ['Gsap', 'Lenis'], 
-        cover: 'assets/images/projects/Covers/Anima.avif' 
+      {
+        id: 'dingading',
+        title: 'Dingading',
+        desc: 'AI voice-based band matching platform with quantitative tier evaluation and MVP-focused planning.',
+        category: 'Web Application',
+        year: '2025',
+        tags: ['Next.js', 'AI', 'Planning'],
+        cover: '../assets/covers/dingading.svg',
       },
-      { 
-        id: 'cyberdiag-app', 
-        title: 'CyberDiag App', 
-        desc: isEn ? "Desktop application designed for SMEs to perform comprehensive cybersecurity diagnostics. Intuitive interface to assess vulnerabilities and provide tailored recommendations." : "Application conçue pour les PME afin de réaliser des diagnostics de cybersécurité complets. Interface intuitive pour évaluer les vulnérabilités et proposer des recommandations personnalisées.", 
-        category: isEn ? 'Desktop App' : 'Application Desktop', 
-        year: '2026', 
-        tags: ['Python', 'Gsap', 'Three.js'], 
-        cover: 'assets/images/projects/Covers/CyberDiag.avif' 
+      {
+        id: 'wakwak',
+        title: 'WakWak',
+        desc: 'Emotional diary app with time capsules, anonymous letters, and constellation-based journaling.',
+        category: 'Mobile App',
+        year: '2025',
+        tags: ['React Native', 'PM'],
+        cover: '../assets/covers/wakwak.svg',
       },
-      { 
-        id: 'zenith', 
-        title: 'Zenith', 
-        desc: isEn ? "Innovative web browser focused on privacy and performance, featuring a built-in ad blocker, optimized tab management, and extensive customization." : "Navigateur web innovant axé sur la confidentialité et la performance, avec bloqueur de publicités intégré, gestion optimisée des onglets et personnalisation poussée.", 
-        category: isEn ? 'Desktop App' : 'Application Desktop', 
-        year: '2026', 
-        tags: ['Electron', 'JavaScript', 'Three.js'], 
-        cover: 'assets/images/projects/Covers/Zenith.avif' 
+      {
+        id: 'cinemovie',
+        title: 'CINEMovie',
+        desc: 'TMDB-powered movie community with AI chat recommendations and 3D carousel browsing.',
+        category: 'Website',
+        year: '2024',
+        tags: ['Vue 3', 'Gemini', 'FE'],
+        cover: '../assets/covers/cinemovie.svg',
       },
-      { 
-        id: 'portfolio', 
-        title: 'Portfolio', 
-        desc: isEn ? "Personal website showcasing my projects, skills, and experience in web development. Designed with a strong focus on aesthetics and user experience." : "Site web personnel présentant mes projets, compétences et expériences en développement web. Conçu avec une attention particulière à l'esthétique et à la convivialité.", 
-        category: isEn ? 'Website' : 'Site Web', 
-        year: '2026', 
-        tags: ['NextJS', 'GSAP', 'Three.js'], 
-        cover: 'assets/images/projects/Covers/Portfolio.avif' 
-      },
-      { 
-        id: 'skymcdb', 
-        title: 'SkymcDB', 
-        desc: isEn ? "A powerful and intuitive tool designed to manage, organize, and optimize your Minecraft building projects, developed specifically for builders." : "Un outil puissant et intuitif conçu pour gérer, organiser et optimiser vos projets de construction Minecraft, développé spécifiquement pour les builders.", 
-        category: isEn ? 'Desktop App' : 'Application Desktop', 
-        year: '2024', 
-        tags: ['Java', 'JavaFX', 'CSS'], 
-        cover: 'assets/images/projects/Covers/SkymcDB.avif' 
-      },
-      { 
-        id: 'chromablock', 
-        title: 'ChromaBlock', 
-        desc: isEn ? "Web adaptation of SkymcDB to reach a wider audience, introducing brand new features for Minecraft builders." : "Adaptation web de SkymcDB, pour élargir l'audience, permettant des fonctionnalités inédites dans le domaine du build Minecraft.", 
-        category: 'Web Application', 
-        year: '2024', 
-        tags: ['JavaScript', 'HTML', 'CSS'], 
-        cover: 'assets/images/projects/Covers/ChromaBlock.avif' 
-      },
-      { 
-        id: 'symphony', 
-        title: 'Symphony', 
-        desc: isEn ? "Web application allowing users to host and stream their music, as well as discover music published by others on the platform." : "Application web permettant aux utilisateurs d'héberger et lire leurs musiques ainsi que celles publiées par d'autres utilisateurs sur la plateforme.", 
-        category: 'Web Application', 
-        year: '2024', 
-        tags: ['Netlify Functions', 'JavaScript', 'HTML/CSS'], 
-        cover: 'assets/images/projects/Covers/Symphony.avif' 
-      },
-      { 
-        id: 'echo', 
-        title: 'Echo', 
-        desc: isEn ? "Web interface to interact and chat with a local Artificial Intelligence (Qwen). Smooth and private conversational experience." : "Interface web permettant d'interagir et discuter avec une intelligence artificielle fonctionnant en local (Qwen). Expérience conversationnelle fluide et privée.", 
-        category: isEn ? 'AI / Web' : 'IA / Web', 
-        year: '2024', 
-        tags: ['JavaScript', 'HTML/CSS', 'AI Local'], 
-        cover: 'assets/images/projects/Covers/Echo.avif' 
-      }
     ];
-
-    
-    PROJECTS = [PROJECTS[0]].concat(PROJECTS.slice(1).reverse());
 
     var TOTAL = PROJECTS.length;
     var cube = document.getElementById('cube');
