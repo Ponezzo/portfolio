@@ -2,6 +2,19 @@
  * Aerukart-style rotating glass prism letters — T + G
  */
 import * as THREE from './vendor/three.module.min.js';
+import { FontLoader } from './vendor/FontLoader.js';
+import { TextGeometry } from './vendor/TextGeometry.js';
+
+const TEXT_OPTS = {
+  size: 1.35,
+  depth: 0.42,
+  curveSegments: 10,
+  bevelEnabled: true,
+  bevelThickness: 0.065,
+  bevelSize: 0.045,
+  bevelOffset: 0,
+  bevelSegments: 5,
+};
 
 const PrismRenderer = {
   _inited: false,
@@ -9,17 +22,21 @@ const PrismRenderer = {
   _scene: null,
   _camera: null,
   _letters: null,
-  _bg: null,
   _raf: 0,
   _mouse: { x: 0, y: 0 },
-  _container: null,
+  _canvasHost: null,
+  _onMouseMove: null,
+  _onResize: null,
+  _resizeObserver: null,
 
   init(containerId = 'hero-canvas') {
     if (this._inited) return Promise.resolve();
     const container = document.getElementById(containerId);
     if (!container) return Promise.resolve();
+    return this._setup(container);
+  },
 
-    this._container = container;
+  async _setup(container) {
     container.innerHTML = '';
     container.classList.add('prism-hero');
 
@@ -36,154 +53,154 @@ const PrismRenderer = {
     wrap.appendChild(glow);
 
     container.appendChild(wrap);
+    this._canvasHost = canvasHost;
 
-    const w = canvasHost.clientWidth || Math.min(window.innerWidth * 0.42, 520);
-    const h = canvasHost.clientHeight || Math.min(window.innerHeight * 0.55, 640);
+    await this._waitForLayout(canvasHost);
 
-    this._renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const fontUrl = new URL('./vendor/helvetiker_bold.typeface.json', import.meta.url).href;
+    const font = await new Promise((resolve, reject) => {
+      new FontLoader().load(fontUrl, resolve, undefined, reject);
+    });
+
+    const { w, h } = this._hostSize(canvasHost);
+
+    this._renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance',
+    });
     this._renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this._renderer.setSize(w, h);
+    this._renderer.setSize(w, h, false);
     this._renderer.setClearColor(0x000000, 0);
+    this._renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this._renderer.toneMappingExposure = 1.15;
     canvasHost.appendChild(this._renderer.domElement);
 
     this._scene = new THREE.Scene();
-    this._camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 100);
-    this._camera.position.set(0, 0, 5.2);
-
-    const mat = this._glassMaterial();
+    this._camera = new THREE.PerspectiveCamera(34, w / h, 0.1, 100);
+    this._camera.position.set(0, 0.05, 5.8);
 
     this._letters = new THREE.Group();
-    const letterT = this._buildLetterT(mat);
-    letterT.position.set(-0.72, 0, 0);
-    const letterG = this._buildLetterG(mat);
-    letterG.position.set(0.78, 0, 0);
-    this._letters.add(letterT, letterG);
-    this._letters.scale.setScalar(0.92);
+    this._letters.add(this._createChromaticLetter(font, 'T', -0.95));
+    this._letters.add(this._createChromaticLetter(font, 'G', 0.95));
+    this._letters.scale.setScalar(0.78);
     this._scene.add(this._letters);
 
-    const lightMagenta = new THREE.DirectionalLight(0xff00aa, 1.4);
-    lightMagenta.position.set(4, 3, 2);
-    this._scene.add(lightMagenta);
-
-    const lightCyan = new THREE.DirectionalLight(0x00f0ff, 1.1);
-    lightCyan.position.set(-4, -1, 3);
-    this._scene.add(lightCyan);
-
-    const lightYellow = new THREE.DirectionalLight(0xd4ff00, 0.65);
-    lightYellow.position.set(0, -4, 2);
-    this._scene.add(lightYellow);
-
-    this._scene.add(new THREE.AmbientLight(0x404060, 0.35));
-
-    const bgGeo = new THREE.PlaneGeometry(14, 14);
-    const bgMat = new THREE.ShaderMaterial({
-      uniforms: {
-        uTime: { value: 0 },
-        uMouse: { value: new THREE.Vector2(0, 0) },
-      },
-      vertexShader: `
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform float uTime;
-        uniform vec2 uMouse;
-        varying vec2 vUv;
-        void main() {
-          vec2 p = vUv - 0.5;
-          float d = length(p - uMouse * 0.12);
-          vec3 c1 = vec3(1.0, 0.0, 0.67);
-          vec3 c2 = vec3(0.0, 0.94, 1.0);
-          vec3 c3 = vec3(0.83, 1.0, 0.0);
-          float t = uTime * 0.12 + atan(p.y, p.x);
-          vec3 col = mix(mix(c1, c2, sin(t) * 0.5 + 0.5), c3, cos(t * 1.2) * 0.5 + 0.5);
-          col *= 0.08 + smoothstep(0.45, 0.0, d) * 0.22;
-          gl_FragColor = vec4(col, 1.0);
-        }
-      `,
-      depthWrite: false,
-    });
-    this._bg = new THREE.Mesh(bgGeo, bgMat);
-    this._bg.position.z = -2.5;
-    this._scene.add(this._bg);
+    this._addLights();
 
     this._onMouseMove = (e) => {
       this._mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
       this._mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
     };
     this._onResize = () => this._resize(canvasHost);
-
     window.addEventListener('mousemove', this._onMouseMove, { passive: true });
     window.addEventListener('resize', this._onResize);
+
+    if (typeof ResizeObserver !== 'undefined') {
+      this._resizeObserver = new ResizeObserver(() => this._resize(canvasHost));
+      this._resizeObserver.observe(canvasHost);
+    }
 
     this._inited = true;
     this._loop();
     return Promise.resolve();
   },
 
-  _glassMaterial() {
-    return new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      metalness: 0.08,
-      roughness: 0.04,
-      transmission: 0.94,
-      thickness: 0.75,
-      ior: 1.5,
-      clearcoat: 1,
-      clearcoatRoughness: 0.04,
-      envMapIntensity: 1.1,
+  _waitForLayout(el) {
+    return new Promise((resolve) => {
+      const tick = () => {
+        const { w, h } = this._hostSize(el);
+        if (w > 40 && h > 40) {
+          resolve();
+          return;
+        }
+        requestAnimationFrame(tick);
+      };
+      tick();
     });
   },
 
-  _buildLetterT(mat) {
+  _hostSize(el) {
+    const rect = el.getBoundingClientRect();
+    const w = Math.round(rect.width) || Math.min(window.innerWidth * 0.28, 320);
+    const h = Math.round(rect.height) || Math.min(window.innerHeight * 0.36, 420);
+    return { w, h };
+  },
+
+  _glassMaterial(tint, transmission, opacity = 1) {
+    return new THREE.MeshPhysicalMaterial({
+      color: tint,
+      metalness: 0.05,
+      roughness: 0.03,
+      transmission,
+      thickness: 1.35,
+      ior: 1.52,
+      clearcoat: 1,
+      clearcoatRoughness: 0.02,
+      transparent: opacity < 1,
+      opacity,
+      reflectivity: 1,
+      specularIntensity: 1.2,
+      envMapIntensity: 1.4,
+    });
+  },
+
+  _createChromaticLetter(font, char, xPos) {
     const group = new THREE.Group();
-    const depth = 0.26;
-    const top = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.16, depth), mat);
-    top.position.y = 0.38;
-    const stem = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.82, depth), mat);
-    stem.position.y = -0.02;
-    group.add(top, stem);
+    const layers = [
+      { x: -0.022, tint: 0xff0088, transmission: 0.55, opacity: 0.55 },
+      { x: 0, tint: 0xffffff, transmission: 0.94, opacity: 1 },
+      { x: 0.022, tint: 0x00eeff, transmission: 0.55, opacity: 0.55 },
+    ];
+
+    layers.forEach(({ x, tint, transmission, opacity }) => {
+      const geo = new TextGeometry(char, { font, ...TEXT_OPTS });
+      geo.computeVertexNormals();
+      geo.center();
+      const mesh = new THREE.Mesh(geo, this._glassMaterial(tint, transmission, opacity));
+      mesh.position.x = x;
+      mesh.renderOrder = tint === 0xffffff ? 2 : 1;
+      group.add(mesh);
+    });
+
+    group.position.x = xPos;
     return group;
   },
 
-  _buildLetterG(mat) {
-    const group = new THREE.Group();
-    const depth = 0.26;
-    const left = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.84, depth), mat);
-    left.position.set(-0.3, 0, 0);
-    const top = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.16, depth), mat);
-    top.position.set(0.02, 0.34, 0);
-    const right = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.52, depth), mat);
-    right.position.set(0.3, 0.1, 0);
-    const bottom = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.16, depth), mat);
-    bottom.position.set(-0.02, -0.34, 0);
-    const bar = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.14, depth), mat);
-    bar.position.set(0.14, -0.02, 0);
-    group.add(left, top, right, bottom, bar);
-    return group;
+  _addLights() {
+    const magenta = new THREE.DirectionalLight(0xff00aa, 2.2);
+    magenta.position.set(5, 4, 3);
+    this._scene.add(magenta);
+
+    const cyan = new THREE.DirectionalLight(0x00f0ff, 1.8);
+    cyan.position.set(-5, 1, 4);
+    this._scene.add(cyan);
+
+    const yellow = new THREE.DirectionalLight(0xd4ff00, 1.1);
+    yellow.position.set(1, -5, 2);
+    this._scene.add(yellow);
+
+    const rim = new THREE.DirectionalLight(0xffffff, 0.45);
+    rim.position.set(0, 0, -4);
+    this._scene.add(rim);
+
+    this._scene.add(new THREE.AmbientLight(0x303050, 0.25));
   },
 
   _resize(host) {
-    const w = host.clientWidth || Math.min(window.innerWidth * 0.42, 520);
-    const h = host.clientHeight || Math.min(window.innerHeight * 0.55, 640);
+    if (!this._renderer || !this._camera) return;
+    const { w, h } = this._hostSize(host);
     this._camera.aspect = w / h;
     this._camera.updateProjectionMatrix();
-    this._renderer.setSize(w, h);
+    this._renderer.setSize(w, h, false);
   },
 
   _loop() {
     const t = performance.now() * 0.001;
     if (this._letters) {
-      this._letters.rotation.x = t * 0.28 + this._mouse.y * 0.35;
-      this._letters.rotation.y = t * 0.42 + this._mouse.x * 0.45;
-      this._letters.rotation.z = Math.sin(t * 0.25) * 0.12;
-    }
-    if (this._bg) {
-      this._bg.material.uniforms.uTime.value = t;
-      this._bg.material.uniforms.uMouse.value.set(this._mouse.x, this._mouse.y);
+      this._letters.rotation.x = t * 0.22 + this._mouse.y * 0.32;
+      this._letters.rotation.y = t * 0.34 + this._mouse.x * 0.38;
+      this._letters.rotation.z = Math.sin(t * 0.3) * 0.08;
     }
     this._renderer.render(this._scene, this._camera);
     this._raf = requestAnimationFrame(() => this._loop());
@@ -193,9 +210,11 @@ const PrismRenderer = {
     cancelAnimationFrame(this._raf);
     if (this._onMouseMove) window.removeEventListener('mousemove', this._onMouseMove);
     if (this._onResize) window.removeEventListener('resize', this._onResize);
+    if (this._resizeObserver) this._resizeObserver.disconnect();
     this._inited = false;
   },
 };
 
 window.PrismRenderer = PrismRenderer;
+window.dispatchEvent(new Event('prism-renderer-ready'));
 export default PrismRenderer;

@@ -60,12 +60,14 @@ if (!mustSkip) {
 let _shaderStarted = false;
 function startShader() {
   if (_shaderStarted) return;
-  _shaderStarted = true;
-  if (window.PrismRenderer) {
-    PrismRenderer.init('hero-canvas').then(() => {
-      window.dispatchEvent(new Event('scroll'));
-    }).catch(err => console.error('PrismRenderer init failed:', err));
+  if (!window.PrismRenderer) {
+    window.addEventListener('prism-renderer-ready', startShader, { once: true });
+    return;
   }
+  _shaderStarted = true;
+  PrismRenderer.init('hero-canvas').then(() => {
+    window.dispatchEvent(new Event('scroll'));
+  }).catch(err => console.error('PrismRenderer init failed:', err));
 }
 
 gsap.registerPlugin(ScrollTrigger);

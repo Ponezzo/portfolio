@@ -512,28 +512,34 @@ a.chr-hover {
   color: inherit;
 }
 
-.prism-hero,
-.prism-hero__wrap {
+.prism-hero {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
   pointer-events: none;
+  z-index: 0;
 }
 
 .prism-hero__wrap {
+  position: absolute;
+  right: clamp(1.5rem, 7vw, 6rem);
+  top: 50%;
+  transform: translateY(calc(-50% - 4vh));
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding-right: clamp(2rem, 10vw, 8rem);
+  justify-content: center;
+  width: clamp(200px, 26vw, 320px);
+  height: clamp(260px, 34vh, 420px);
+  pointer-events: none;
 }
 
 .prism-hero__canvas-host {
   position: relative;
-  width: min(38vw, 460px);
-  height: min(48vh, 560px);
-  transform: translateY(-6%);
+  width: 100%;
+  height: 100%;
+  z-index: 2;
 }
 
 .prism-hero__canvas-host canvas {
@@ -544,18 +550,15 @@ a.chr-hover {
 
 .prism-hero__glow {
   position: absolute;
-  right: clamp(1rem, 8vw, 6rem);
-  top: 50%;
-  width: min(42vw, 500px);
-  height: min(50vh, 580px);
-  transform: translateY(-56%);
+  inset: -12%;
+  z-index: 1;
   pointer-events: none;
   background:
-    radial-gradient(circle at 35% 42%, rgba(0, 240, 255, 0.14), transparent 48%),
-    radial-gradient(circle at 65% 58%, rgba(255, 0, 170, 0.12), transparent 44%),
-    radial-gradient(circle at 50% 50%, rgba(212, 255, 0, 0.06), transparent 55%);
+    radial-gradient(circle at 38% 44%, rgba(0, 240, 255, 0.2), transparent 52%),
+    radial-gradient(circle at 62% 56%, rgba(255, 0, 170, 0.16), transparent 48%),
+    radial-gradient(circle at 50% 50%, rgba(212, 255, 0, 0.08), transparent 58%);
   mix-blend-mode: screen;
-  filter: blur(2px);
+  filter: blur(8px);
 }
 
 .contact--minimal {
@@ -1740,21 +1743,10 @@ a.chr-hover {
   }
 
   .prism-hero__wrap {
-    justify-content: center;
-    padding-right: 0;
-  }
-
-  .prism-hero__canvas-host {
-    width: min(72vw, 320px);
-    height: min(38vh, 380px);
-    transform: translateY(-4%);
-  }
-
-  .prism-hero__glow {
     right: 50%;
-    transform: translate(50%, -52%);
-    width: min(76vw, 340px);
-    height: min(40vh, 400px);
+    transform: translate(50%, calc(-50% - 2vh));
+    width: min(62vw, 280px);
+    height: min(34vh, 340px);
   }
 
   .hero-bar .chr-hover .ch-top,
