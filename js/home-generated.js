@@ -21,9 +21,61 @@ window.__HOME__ = {
     },
     "about": {
       "textHtml": "기능의 수가 아니라, 사용자가 체감하는 가치로 제품을 판단합니다.",
-      "sub": "<ul class=\"about-facts\"><li>SSAFY PM · SW 아카데미 (2024.07 – 2025.06)</li><li>학사 졸업 · 학점 3.73/4.5 (2019 – 2024)</li><li>SSAFY 기업연계 프로젝트 우수상 · 11개 팀 중 2위 (2025.05)</li><li>삼성생산기술연구소 협업 · 스마트팩토리 3D 대시보드 우수 프로젝트</li><li>해커스교육그룹 기획 인턴 · 재구매율 13%↑, 이탈률 5%p↓ (2022)</li><li>SQLD · ADsP · TOEIC 855</li></ul>",
       "photoSrc": "assets/images/profile/taegeon.jpg",
-      "photoAlt": "Taegeon Park"
+      "photoAlt": "Taegeon Park",
+      "cards": {
+        "major": {
+          "text": "경영학과 및\n벤처중소기업학과 전공",
+          "image": "assets/images/about/major-bg.png"
+        },
+        "certifications": [
+          {
+            "name": "ADsP",
+            "image": "assets/images/about/adsp.png"
+          },
+          {
+            "name": "SQLD",
+            "image": "assets/images/about/sqld.png"
+          }
+        ],
+        "education": [
+          {
+            "title": "삼성 (2024.07 ~ 2025.06)",
+            "detail": "청년 AI/소프트웨어 아카데미",
+            "image": "assets/images/about/ssafy.png"
+          },
+          {
+            "title": "숭실대학교 (서울)",
+            "detail": "(2019.03 ~ 2024.02)",
+            "image": "assets/images/about/soongsil.png"
+          },
+          {
+            "title": "Saint Louis University (미국)",
+            "detail": "(2016.05 ~ 2018.05)",
+            "image": "assets/images/about/saint-louis.png"
+          }
+        ],
+        "awards": [
+          {
+            "year": "2025",
+            "title": "SSAFY 기업연계 프로젝트 (우수상)",
+            "org": "삼성전자주식회사",
+            "image": "assets/images/about/samsung.png"
+          },
+          {
+            "year": "2024",
+            "title": "Eduflex 인사담당",
+            "org": "Eduflex",
+            "image": "assets/images/about/eduflex.png"
+          },
+          {
+            "year": "2022",
+            "title": "챔프스터디(해커스) 기획 인턴",
+            "org": "챔프스터디",
+            "image": "assets/images/about/champstudy.png"
+          }
+        ]
+      }
     },
     "skills": {
       "subtitle": "Skills",

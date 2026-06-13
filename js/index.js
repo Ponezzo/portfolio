@@ -481,10 +481,27 @@ function setupAboutSection() {
     ease: 'none',
     scrollTrigger: {
       trigger: aboutSub,
-      start: 'top 80%',
-      end: 'top 60%',
+      start: 'top 82%',
+      end: 'top 62%',
       scrub: true,
     },
+  });
+
+  aboutSub?.querySelectorAll('.about-card').forEach((card, index) => {
+    gsap.set(card, isMobile ? { opacity: 0, y: 24 } : { opacity: 0, y: 28, filter: 'blur(10px)' });
+    gsap.to(card, {
+      opacity: 1,
+      y: 0,
+      ...(isMobile ? {} : { filter: 'blur(0px)' }),
+      ease: 'none',
+      scrollTrigger: {
+        trigger: card,
+        start: 'top 86%',
+        end: 'top 68%',
+        scrub: true,
+      },
+      delay: index * 0.04,
+    });
   });
 
   

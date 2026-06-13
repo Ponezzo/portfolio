@@ -1,64 +1,63 @@
-# TGP Portfolio — 페이지 텍스트 (이 파일만 수정하세요)
-# npm run apply:text  →  content/home.json 반영  →  npm run apply:home
-#
-# 규칙
-#   (탭 없음)     섹션 이름
-#   \t 한 번      섹션 항목 (About: 1=제목, 2~=불릿 / Skills: 1=부제, 2=본문, 그다음=카테고리명)
-#   \t\t 두 번    Skills 카테고리 아래 스킬 항목
-#
-# About 예시
-#   About
-#   	제목 한 줄
-#   	불릿 항목 1
-#   	불릿 항목 2
-
-About
-	기능의 수가 아니라, 사용자가 체감하는 가치로 제품을 판단합니다.
-	SSAFY PM · SW 아카데미 (2024.07 – 2025.06)
-	학사 졸업 · 학점 3.73/4.5 (2019 – 2024)
-	SSAFY 기업연계 프로젝트 우수상 · 11개 팀 중 2위 (2025.05)
-	삼성생산기술연구소 협업 · 스마트팩토리 3D 대시보드 우수 프로젝트
-	해커스교육그룹 기획 인턴 · 재구매율 13%↑, 이탈률 5%p↓ (2022)
-	SQLD · ADsP · TOEIC 855
-
-Skills
-	Skills
-	사용자 경험과 데이터를 기준으로 제품을 기획하고, Vue·React·Three.js로 프로토타입까지 직접 검증합니다.
-	Frontend
-		Vue 3
-		React
-		React Native
-		Next.js
-		JavaScript
-		TypeScript
-		HTML / CSS
-		Three.js
-	Tools
-		Git
-		GitHub
-		Figma
-		Notion
-		Jira
-	Product & Others
-		UI/UX Design
-		MVP Based Planning
-		User Interview
-		AI (Claude, OPenAI, Gemini)
-
-Projects
-	FLIP
-		12 2025
-	Dingading
-		08 2025
-	WakWak
-		06 2025
-	CINEMovie
-		03 2024
-
-ProjectsPreview
-	Preview
-	See project
-
-Footer
-	Taegeon
-	Park
+# TGP Portfolio — 페이지 텍스트 (이 파일만 수정하세요)
+# npm run apply:text  →  content/home.json 반영  →  npm run apply:home
+#
+# About 규칙
+#   1줄: 제목
+#   major:전공 텍스트 (\n 줄바꿈 가능)
+#   cert:자격증명
+#   edu:학교명|기간/부가설명|이미지파일명
+#   award:연도|제목|기관|이미지파일명
+
+About
+	기능의 수가 아니라, 사용자가 체감하는 가치로 제품을 판단합니다.
+	major:경영학과 및\n벤처중소기업학과 전공
+	cert:ADsP
+	cert:SQLD
+	edu:삼성 (2024.07 ~ 2025.06)|청년 AI/소프트웨어 아카데미|ssafy.png
+	edu:숭실대학교 (서울)|(2019.03 ~ 2024.02)|soongsil.png
+	edu:Saint Louis University (미국)|(2016.05 ~ 2018.05)|saint-louis.png
+	award:2025|SSAFY 기업연계 프로젝트 (우수상)|삼성전자주식회사|samsung.png
+	award:2024|Eduflex 인사담당|Eduflex|eduflex.png
+	award:2022|챔프스터디(해커스) 기획 인턴|챔프스터디|champstudy.png
+
+Skills
+	Skills
+	사용자 경험과 데이터를 기준으로 제품을 기획하고, Vue·React·Three.js로 프로토타입까지 직접 검증합니다.
+	Frontend
+		Vue 3
+		React
+		React Native
+		Next.js
+		JavaScript
+		TypeScript
+		HTML / CSS
+		Three.js
+	Tools
+		Git
+		GitHub
+		Figma
+		Notion
+		Jira
+	Product & Others
+		UI/UX Design
+		MVP Based Planning
+		User Interview
+		AI (Claude, OPenAI, Gemini)
+
+Projects
+	FLIP
+		12 2025
+	Dingading
+		08 2025
+	WakWak
+		06 2025
+	CINEMovie
+		03 2024
+
+ProjectsPreview
+	Preview
+	See project
+
+Footer
+	Taegeon
+	Park

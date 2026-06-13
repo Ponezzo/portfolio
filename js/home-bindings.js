@@ -15,7 +15,8 @@
 
   function applyAbout(about) {
     setHtml('about-text', about.textHtml);
-    setHtml('about-sub', about.sub);
+    const cardsHtml = window.buildAboutCardsHtml?.(about.cards) ?? about.sub ?? '';
+    setHtml('about-sub', cardsHtml);
     const photo = document.querySelector('.about-photo');
     if (photo) {
       photo.src = about.photoSrc;

@@ -87,16 +87,68 @@ function applySections(sections, home) {
   }
 
   if (sections.About) {
-    const lines = takeOneTabLines(sections.About);
-    const [textHtml, ...facts] = lines;
-    const sub = facts.length
-      ? `<ul class="about-facts">${facts.map((line) => `<li>${line.replace(/^-\s*/, '')}</li>`).join('')}</ul>`
-      : undefined;
+    const ABOUT_IMG = 'assets/images/about/';
+    const CERT_IMAGES = {
+      ADsP: `${ABOUT_IMG}adsp.png`,
+      ADSP: `${ABOUT_IMG}adsp.png`,
+      SQLD: `${ABOUT_IMG}sqld.png`,
+    };
+
+    let textHtml = null;
+    const cards = {
+      major: null,
+      certifications: [],
+      education: [],
+      awards: [],
+    };
+
+    for (const { depth, text } of sections.About.lines) {
+      if (depth !== 1 || !text) continue;
+      if (textHtml == null) {
+        textHtml = text;
+        continue;
+      }
+
+      const colon = text.indexOf(':');
+      if (colon === -1) continue;
+      const type = text.slice(0, colon).trim();
+      const value = text.slice(colon + 1).trim();
+      if (!value) continue;
+
+      if (type === 'major') {
+        cards.major = {
+          text: value.replace(/\\n/g, '\n'),
+          image: `${ABOUT_IMG}major-bg.png`,
+        };
+      } else if (type === 'cert') {
+        const image = CERT_IMAGES[value] ?? `${ABOUT_IMG}${value.toLowerCase()}.png`;
+        cards.certifications.push({ name: value, image });
+      } else if (type === 'edu') {
+        const [title, detail = '', imageFile = ''] = value.split('|').map((part) => part.trim());
+        cards.education.push({
+          title: title.replace(/\\n/g, '\n'),
+          detail: detail.replace(/\\n/g, '\n'),
+          image: imageFile ? `${ABOUT_IMG}${imageFile}` : '',
+        });
+      } else if (type === 'award') {
+        const [year, title, org, imageFile = ''] = value.split('|').map((part) => part.trim());
+        cards.awards.push({
+          year,
+          title,
+          org,
+          image: imageFile ? `${ABOUT_IMG}${imageFile}` : '',
+        });
+      }
+    }
+
     content.about = {
       ...(content.about ?? {}),
       ...(textHtml != null ? { textHtml } : {}),
-      ...(sub != null ? { sub } : {}),
     };
+    if (cards.major || cards.certifications.length || cards.education.length || cards.awards.length) {
+      content.about.cards = cards;
+      delete content.about.sub;
+    }
   }
 
   if (sections.Skills) {
