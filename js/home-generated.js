@@ -36,7 +36,6 @@ window.__HOME__ = {
         {
           "id": "frontend",
           "title": "Frontend",
-          "open": true,
           "items": [
             "Vue 3",
             "React",

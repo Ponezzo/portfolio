@@ -42,7 +42,7 @@
     if (!right || !Array.isArray(skills.groups)) return;
 
     right.innerHTML = skills.groups.map((group) => `
-      <div class="skill-group${group.open ? ' open' : ''}" data-group="${group.id}">
+      <div class="skill-group" data-group="${group.id}">
         <div class="skill-header">
           <span class="skill-header-title">${group.title}</span>
           <span class="skill-header-icon"></span>

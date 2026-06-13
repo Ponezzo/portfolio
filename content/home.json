@@ -35,7 +35,6 @@
         {
           "id": "frontend",
           "title": "Frontend",
-          "open": true,
           "items": [
             "Vue 3",
             "React",

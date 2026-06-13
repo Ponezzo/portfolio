@@ -1193,25 +1193,6 @@ a.chr-hover {
   margin-bottom: 3rem;
 }
 
-.skills-arrow-track {
-  position: relative;
-  width: 100%;
-  height: clamp(8rem, 14vw, 12rem);
-  overflow: hidden;
-}
-
-.skills-arrow {
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: clamp(8rem, 14vw, 12rem);
-  color: var(--prism-hot);
-  line-height: 1;
-  user-select: none;
-  pointer-events: none;
-  will-change: transform;
-}
-
 .skills-right {
   width: 40%;
   padding: 15vh 4rem 50vh 2rem;

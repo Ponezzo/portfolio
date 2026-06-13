@@ -118,7 +118,7 @@ function getTotalWidth() {
 }
 
 ensureIntroNameVisible();
-gsap.set(allRevealEls, { yPercent: 110 });
+gsap.set(allRevealEls, { yPercent: 0 });
 gsap.set([pContent, tPanelRed, tPanelDark], { willChange: 'transform' });
 
 let keepIntroNameAnchored = false;
@@ -139,17 +139,42 @@ function isMobileViewport() {
 
 let _introSettledXvw = 0;
 
-function placeIntroNameAtHeroLine() {
-  nameLayer.classList.add('name-layer--settled');
-  pContent.classList.add('preloader-content--settled');
+function placeIntroNameAtBottom() {
+  nameLayer.classList.remove('name-layer--settled');
+  pContent.classList.remove('preloader-content--settled');
+  const totalW = getTotalWidth();
+  const offsetX = -(totalW / 2 - (pLogo?.offsetWidth || 0) / 2);
+  const offsetX_vw = (offsetX / getViewportSize().width) * 100;
+  _introSettledXvw = offsetX_vw;
+  const newH = pContent.offsetHeight;
+  const vh = getViewportSize().height;
+  const bottomPad = isMobileViewport() ? Math.max(vh * 0.12, 80) : 80;
+  const targetBottom = vh - bottomPad;
+  const offsetY = targetBottom - newH / 2 - vh / 2;
   gsap.set(nameLayer, { autoAlpha: 1, clearProps: 'mixBlendMode' });
-  gsap.set(pContent, { x: 0, y: 0, scale: 1, clearProps: 'transform' });
+  gsap.set(pContent, { x: `${offsetX_vw}vw`, y: offsetY, scale: 1, transformOrigin: '50% 50%' });
   [pLogo, pLuke].forEach((el) => {
     if (!el) return;
     el.style.fontSize = '';
-    el.style.left = '';
-    el.style.top = '';
   });
+}
+
+function applyIntroFinalState() {
+  if (!pContent || !nameLayer) return;
+  pContent.style.visibility = 'hidden';
+  gsap.set(pContent, { scale: 1, x: 0, y: 0 });
+  gsap.set(nameLayer, { mixBlendMode: 'difference' });
+  const fontEl = getNameFontEl();
+  const baseFontSize = fontEl ? parseFloat(getComputedStyle(fontEl).fontSize) : 48;
+  const viewportSize = getViewportSize();
+  const vwSize = (baseFontSize / viewportSize.width) * 100;
+  [pLogo, pLuke].forEach((el) => {
+    if (el) el.style.fontSize = `${vwSize}vw`;
+  });
+  void pContent.offsetWidth;
+  placeIntroNameAtBottom();
+  keepIntroNameAnchored = true;
+  pContent.style.visibility = 'visible';
 }
 
 function refreshIntroNameAnchor() {
@@ -157,7 +182,7 @@ function refreshIntroNameAnchor() {
   if (nameAnchorRaf) cancelAnimationFrame(nameAnchorRaf);
   nameAnchorRaf = requestAnimationFrame(() => {
     nameAnchorRaf = 0;
-    placeIntroNameAtHeroLine();
+    placeIntroNameAtBottom();
   });
 }
 
@@ -180,12 +205,6 @@ master
     gsap.set(pContent, { x: -(getTotalWidth() / 2 - (pLogo?.offsetWidth || 0) / 2) });
     gsap.set(pLuke, { x: 0 });
   })
-  .to(allRevealEls, {
-    yPercent: 0,
-    duration: 0.4,
-    ease: 'power3.out',
-    stagger: { each: 0.025, from: 'center' },
-  })
 
   .add(() => {
     document.getElementById('hero-tagline')?.style.setProperty('will-change', 'opacity, clip-path');
@@ -193,11 +212,37 @@ master
   })
   .to({}, { duration: 0.3 })
 
-  
   .add(() => {
-    placeIntroNameAtHeroLine();
-    ensureIntroNameVisible();
-    keepIntroNameAnchored = true;
+    if (shouldSkipLongIntro || prefersReducedMotion) {
+      applyIntroFinalState();
+      return;
+    }
+
+    const mobile = isMobileViewport();
+    const pad = mobile ? 20 : 48;
+    const currentW = getTotalWidth();
+    const viewportSize = getViewportSize();
+    const targetW = viewportSize.width - pad * 2;
+    const scale = targetW / currentW;
+    const visualCenterX = getTotalWidth() / 2;
+    const visualCenterY = pContent.offsetHeight / 2;
+    gsap.set(pContent, { transformOrigin: `${visualCenterX}px ${visualCenterY}px` });
+
+    const vh = viewportSize.height;
+    const bottomPad = mobile ? Math.max(vh * 0.18, 110) : 80;
+    const targetBottom = vh - bottomPad;
+    const contentRect = pContent.getBoundingClientRect();
+    const curVisualCenterY = contentRect.top + visualCenterY;
+    const targetVisualCenterY = targetBottom - (pContent.offsetHeight * scale / 2);
+    const deltaY = targetVisualCenterY - curVisualCenterY;
+
+    gsap.to(pContent, {
+      scale,
+      y: `+=${deltaY}`,
+      duration: 0.75,
+      ease: 'power3.inOut',
+      onComplete: () => requestAnimationFrame(applyIntroFinalState),
+    });
   })
   .to(tPanelDark, {
     y: '0%',
@@ -318,6 +363,7 @@ master.add(() => {
 });
 
 if (mustSkip) {
+  applyIntroFinalState();
   master.progress(1);
   master.pause();
   if (!shouldSkipLongIntro) {
@@ -725,22 +771,31 @@ function setupProjectsSection() {
 
   let currentIdx = -1;
   let _projectsVisible = false;
+  const lastIdx = items.length - 1;
   gsap.set(card, { opacity: 0 });
 
   function showPreviewPanel() {
     preview.classList.add('visible');
     gsap.to(preview, { opacity: 1, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
-    gsap.set(card, { clearProps: 'opacity' });
     _projectsVisible = true;
   }
 
   function hidePreviewPanel() {
     preview.classList.remove('visible');
     _projectsVisible = false;
-    gsap.to(preview, { opacity: 0, duration: 0.18, ease: 'power2.in', overwrite: 'auto' });
-    gsap.to(card, { opacity: 0, duration: 0.18, ease: 'power2.in', overwrite: 'auto' });
+    gsap.to(preview, { opacity: 0, duration: 0.25, ease: 'power2.in', overwrite: 'auto' });
+    gsap.to(card, { opacity: 0, duration: 0.25, ease: 'power2.in', overwrite: 'auto' });
     currentIdx = -1;
     items.forEach(item => item.classList.remove('active'));
+  }
+
+  function setLastProjectPreviewOpacity(progress) {
+    if (currentIdx !== lastIdx || !_projectsVisible) return;
+    const hide = progress >= 0.98;
+    gsap.to(preview, { opacity: hide ? 0 : 1, duration: 0.12, overwrite: 'auto' });
+    gsap.to(card, { opacity: hide ? 0 : 1, duration: 0.12, overwrite: 'auto' });
+    if (hide) preview.classList.remove('visible');
+    else preview.classList.add('visible');
   }
 
   
@@ -754,38 +809,16 @@ function setupProjectsSection() {
 
   
   const projectsEl = document.getElementById('projects');
-  const projectsExit = document.getElementById('projects-exit');
   ScrollTrigger.create({
     trigger: projectsEl,
     start: 'top 80%',
     end: 'bottom top',
-    onEnter: showPreviewPanel,
-    onLeave: hidePreviewPanel,
-    onEnterBack: showPreviewPanel,
-    onLeaveBack: hidePreviewPanel,
-  });
-
-  if (projectsExit) {
-    gsap.to(preview, {
-      opacity: 0,
-      ease: 'power3.in',
-      scrollTrigger: {
-        trigger: projectsExit,
-        start: 'top 96%',
-        end: 'top 62%',
-        scrub: 0.04,
-        onLeave: () => preview.classList.remove('visible'),
-        onEnterBack: () => {
-          if (_projectsVisible) preview.classList.add('visible');
-        },
-      },
-    });
-  }
-
-  ScrollTrigger.create({
-    trigger: '#skills',
-    start: 'top 96%',
-    onEnter: hidePreviewPanel,
+    onEnter: () => {
+      if (currentIdx < 0) showPreviewPanel();
+    },
+    onEnterBack: () => {
+      if (currentIdx >= 0) showPreviewPanel();
+    },
   });
 
   
@@ -812,10 +845,7 @@ function setupProjectsSection() {
   });
 
   function onProjectsScroll() {
-    if (!_projectsVisible) {
-      if (currentIdx >= 0) deactivateAll();
-      return;
-    }
+    if (!_projectsVisible) return;
     const cy = window.innerHeight / 2;
     const halfH = window.innerHeight / 2;
     let closestIdx = -1, closestDist = Infinity;
@@ -823,25 +853,15 @@ function setupProjectsSection() {
       const rect = item.getBoundingClientRect();
       const itemCy = rect.top + rect.height / 2;
       const dist = Math.abs(itemCy - cy);
-      
       itemQuickX[i](Math.min(dist / halfH, 1) * 80);
-      
       if (dist < closestDist) { closestDist = dist; closestIdx = i; }
     });
     if (closestIdx >= 0 && closestDist < window.innerHeight * 0.45) {
       activateProject(closestIdx);
-    } else {
-      deactivateAll();
     }
   }
   lenis.on('scroll', onProjectsScroll);
   onProjectsScroll();
-
-  function deactivateAll() {
-    if (currentIdx >= 0) items[currentIdx].classList.remove('active');
-    currentIdx = -1;
-    gsap.to(card, { opacity: 0, duration: 0.25, ease: 'power2.in' });
-  }
 
   function activateProject(i) {
     if (i === currentIdx) return;
@@ -850,20 +870,19 @@ function setupProjectsSection() {
     showPreviewPanel();
 
     if (currentIdx === -1) {
-      
       cover.src = items[i].dataset.img;
       if (dateEl) dateEl.textContent = items[i].dataset.date;
-      gsap.to(card, { opacity: 1, duration: 0.4, ease: 'power2.out' });
+      gsap.to(card, { opacity: 1, duration: 0.4, ease: 'power2.out', overwrite: 'auto' });
     } else {
-      
       gsap.to(card, {
         opacity: 0,
         duration: 0.18,
         ease: 'power2.in',
+        overwrite: 'auto',
         onComplete: () => {
           cover.src = items[i].dataset.img;
-          dateEl.textContent = items[i].dataset.date;
-          gsap.to(card, { opacity: 1, duration: 0.3, ease: 'power2.out' });
+          if (dateEl) dateEl.textContent = items[i].dataset.date;
+          gsap.to(card, { opacity: 1, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
         },
       });
     }
@@ -962,6 +981,7 @@ function setupProjectsSection() {
       start: 'top 70%',
       end: 'bottom top',
       scrub: 1,
+      onUpdate: (self) => setLastProjectPreviewOpacity(self.progress),
     },
   });
 
@@ -1262,60 +1282,51 @@ function setupProjectsSection() {
 
   
   ; (function initSkillGroups() {
-    var groups = document.querySelectorAll('.skill-group');
-    if (!groups.length) return;
+    function bindSkillGroups() {
+      var groups = document.querySelectorAll('.skill-group');
+      if (!groups.length) return;
 
-    var firstBody = groups[0].querySelector('.skill-body');
-    if (firstBody) firstBody.style.height = firstBody.scrollHeight + 'px';
-
-    groups.forEach(function (group) {
-      group.querySelector('.skill-header').addEventListener('click', function () {
-        if (group.classList.contains('open')) return; 
-
-        
-        groups.forEach(function (g) {
-          if (g.classList.contains('open')) {
-            g.classList.remove('open');
-            var body = g.querySelector('.skill-body');
-            gsap.to(body, { height: 0, duration: 0.45, ease: 'power3.inOut' });
-          }
-        });
-
-        
-        group.classList.add('open');
+      groups.forEach(function (group) {
         var body = group.querySelector('.skill-body');
-        gsap.to(body, {
-          height: body.scrollHeight, duration: 0.45, ease: 'power3.inOut',
-          onComplete: function () { ScrollTrigger.refresh(); }
+        if (body) gsap.set(body, { height: 0 });
+        group.classList.remove('open');
+
+        var header = group.querySelector('.skill-header');
+        if (!header || header.dataset.bound === '1') return;
+        header.dataset.bound = '1';
+
+        header.addEventListener('click', function () {
+          if (group.classList.contains('open')) {
+            group.classList.remove('open');
+            gsap.to(body, {
+              height: 0,
+              duration: 0.45,
+              ease: 'power3.inOut',
+              onComplete: function () { ScrollTrigger.refresh(); },
+            });
+            return;
+          }
+
+          groups.forEach(function (g) {
+            if (g === group || !g.classList.contains('open')) return;
+            g.classList.remove('open');
+            var otherBody = g.querySelector('.skill-body');
+            gsap.to(otherBody, { height: 0, duration: 0.45, ease: 'power3.inOut' });
+          });
+
+          group.classList.add('open');
+          gsap.to(body, {
+            height: body.scrollHeight,
+            duration: 0.45,
+            ease: 'power3.inOut',
+            onComplete: function () { ScrollTrigger.refresh(); },
+          });
         });
       });
-    });
-  })();
+    }
 
-  
-  ; (function () {
-    var arrow = document.getElementById('skills-arrow');
-    if (!arrow) return;
-
-    gsap.fromTo(arrow,
-      { x: 0 },
-      {
-        x: function () {
-          var track = document.querySelector('.skills-arrow-track');
-          var host = arrow.parentElement;
-          if (!track || !host) return 0;
-          return Math.max(0, track.clientWidth - arrow.offsetWidth);
-        },
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '#skills',
-          start: 'top top',
-          endTrigger: '#skills-separator',
-          end: 'bottom center',
-          scrub: 0.35,
-        }
-      }
-    );
+    bindSkillGroups();
+    window.addEventListener('home-skills-updated', bindSkillGroups);
   })();
 
   
